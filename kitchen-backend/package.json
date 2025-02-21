@@ -1,12 +1,12 @@
 {
   "name": "kitchen-backend",
   "version": "1.0.0",
-  "main": "build/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "tsc": "tsc",
     "dev": "ts-node-dev src/index.ts",
     "lint": "eslint .",
-    "start": "node build/index.js"
+    "start": "node dist/index.js"
   },
   "author": "Adhir Uchil",
   "license": "ISC",
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
+    "@flydotio/dockerfile": "^0.7.8",
     "@types/cors": "^2.8.17",
     "@types/eslint__js": "^8.42.3",
     "@types/express": "^5.0.0",
