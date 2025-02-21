@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setRecipes } from "./reducers/recipeReducer";
+import { initializeRecipes } from "./reducers/recipeReducer";
+import recipesService from "./services/recipes";
 import Header from "./components/Header";
 import Home from "./components/Home";
 import RecipePage from "./components/RecipePage";
@@ -57,7 +58,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setRecipes(recipes));
+    dispatch(initializeRecipes());
   }, [dispatch]);
 
   return (

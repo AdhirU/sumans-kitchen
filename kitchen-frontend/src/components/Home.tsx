@@ -17,7 +17,7 @@ const Home = () => {
     <Container sx={{ marginTop: 5 }}>
       <Grid container spacing={3}>
         {recipes.map((recipe) => (
-          <Grid item xs={12} key={recipe.id} width="100%">
+          <Grid xs={12} key={recipe.id} width="100%">
             <Card
               component={Link}
               to={`/recipe/${recipe.id}`}
