@@ -1,11 +1,27 @@
-import logger from "./logger";
+import { NextFunction, Request, Response } from "express";
+import { newRecipeSchema } from "./zodSchemas";
+import { z } from "zod";
 
-const requestLogger = (request, response, next) => {
-  logger.info(request.method, request.path, response.statusCode);
-  if (process.env.NODE_ENV === "dev" && request.method === "POST") {
-    logger.info(request.body);
+const newRecipeParser = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    newRecipeSchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
   }
-  next();
 };
 
-export default { requestLogger };
+const newRecipeErrorHandler = (
+  error: unknown,
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (error instanceof z.ZodError) {
+    res.status(400).send({ error: error.issues });
+  } else {
+    next(error);
+  }
+};
+
+export default { newRecipeParser, newRecipeErrorHandler };
