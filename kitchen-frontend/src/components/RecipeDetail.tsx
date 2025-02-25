@@ -1,25 +1,30 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { useState } from "react";
 import {
   Container,
-  Card,
-  CardMedia,
-  CardContent,
   Typography,
-  Grid,
   Box,
   Paper,
   Button,
-  TextField,
   IconButton,
 } from "@mui/material";
-import { Add, Delete, EditOutlined } from "@mui/icons-material";
+import { EditOutlined } from "@mui/icons-material";
 
 import RecipeForm from "./RecipeForm";
+import { useParams } from "react-router-dom";
+import { useAppSelector } from "../hooks";
 
-const RecipeDetail = ({ recipe, user }) => {
+const RecipeDetail = () => {
   const isOwner = true;
   const [isEditing, setIsEditing] = useState(false);
+
+  const id = useParams().id;
+  const recipe = useAppSelector((state) =>
+    state.recipes.find((r) => r.id === id)
+  );
+
+  if (!recipe) {
+    return <Typography>Recipe not found.</Typography>;
+  }
 
   return isEditing ? (
     <RecipeForm recipe={recipe} onSave={() => setIsEditing(false)} />
@@ -89,7 +94,7 @@ const RecipeDetail = ({ recipe, user }) => {
             sx={{ padding: 3, borderRadius: 2, backgroundColor: "#f9f9f9" }}
           >
             <ul>
-              {recipe.ingredients.map((ingredient, index) => (
+              {recipe.ingredients.map((ingredient: string, index: number) => (
                 <li key={index}>
                   <Typography fontSize={16}>{ingredient}</Typography>
                 </li>
@@ -104,7 +109,7 @@ const RecipeDetail = ({ recipe, user }) => {
             sx={{ padding: 3, borderRadius: 2, backgroundColor: "#f9f9f9" }}
           >
             <ul>
-              {recipe.directions.map((step, index) => (
+              {recipe.directions.map((step: string, index: number) => (
                 <li key={index}>
                   <Typography fontSize={16}>{step}</Typography>
                 </li>

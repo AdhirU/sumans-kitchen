@@ -1,61 +1,15 @@
 import { useEffect } from "react";
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { initializeRecipes } from "./reducers/recipeReducer";
-import recipesService from "./services/recipes";
 import Header from "./components/Header";
 import Home from "./components/Home";
-import RecipePage from "./components/RecipePage";
-import spaghetti from "./assets/spaghetti.png";
+import RecipeDetail from "./components/RecipeDetail";
 import CreateRecipe from "./components/CreateRecipe";
-
-const recipes = [
-  {
-    id: 1,
-    title: "Spaghetti Carbonara",
-    description:
-      "A classic Italian pasta dish with eggs, cheese, pancetta, and pepper.",
-    image: spaghetti,
-    ingredients: [
-      "Spaghetti",
-      "Eggs",
-      "Pancetta",
-      "Parmesan Cheese",
-      "Black Pepper",
-    ],
-    directions: [
-      "Cook spaghetti",
-      "Fry pancetta",
-      "Mix eggs and cheese",
-      "Combine all ingredients",
-    ],
-  },
-  {
-    id: 2,
-    title: "Chicken Curry",
-    description:
-      "A flavorful curry dish with tender chicken and aromatic spices.",
-    image: null,
-    ingredients: [
-      "Chicken",
-      "Onions",
-      "Tomatoes",
-      "Garlic",
-      "Ginger",
-      "Spices",
-    ],
-    directions: [
-      "Sauté onions and garlic",
-      "Add chicken",
-      "Pour in tomatoes and spices",
-      "Simmer until cooked",
-    ],
-  },
-];
+import { useAppDispatch } from "./hooks";
 
 function App() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(initializeRecipes());
@@ -66,7 +20,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/recipe/:id" element={<RecipePage />} />
+        <Route path="/recipe/:id" element={<RecipeDetail />} />
         <Route path="/new-recipe" element={<CreateRecipe />} />
       </Routes>
     </>

@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import {
   Container,
   Paper,
-  CardMedia,
   Box,
   Typography,
   TextField,
@@ -10,26 +9,29 @@ import {
   IconButton,
 } from "@mui/material";
 import { Add, Delete } from "@mui/icons-material";
+import { NewRecipe } from "../types";
 
-const RecipeForm = ({
-  recipe = {
-    title: "",
-    description: "",
-    ingredients: [""],
-    directions: [""],
-    image: "",
-  },
-  onSave,
-}) => {
+interface Props {
+  recipe: NewRecipe;
+  onSave: (newRecipe: NewRecipe) => void;
+}
+
+type arrayFields = "ingredients" | "directions";
+
+const RecipeForm = ({ recipe, onSave }: Props) => {
   const [editedRecipe, setEditedRecipe] = useState({ ...recipe });
   const [imagePreview, setImagePreview] = useState(recipe.image);
 
-  const handleEditChange = (event) => {
+  const handleEditChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setEditedRecipe((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleArrayChange = (index, field, value) => {
+  const handleArrayChange = (
+    index: number,
+    field: arrayFields,
+    value: string
+  ) => {
     setEditedRecipe((prev) => {
       const updatedArray = [...prev[field]];
       updatedArray[index] = value;
@@ -37,29 +39,30 @@ const RecipeForm = ({
     });
   };
 
-  const handleAddItem = (field) => {
+  const handleAddItem = (field: arrayFields) => {
     setEditedRecipe((prev) => ({
       ...prev,
       [field]: [...prev[field], ""],
     }));
   };
 
-  const handleRemoveItem = (index, field) => {
+  const handleRemoveItem = (index: number, field: arrayFields) => {
     setEditedRecipe((prev) => {
       const updatedArray = prev[field].filter((_, i) => i !== index);
       return { ...prev, [field]: updatedArray };
     });
   };
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files[0]) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
-        setEditedRecipe((prev) => ({ ...prev, image: reader.result }));
+        const result = reader.result as string;
+        setImagePreview(result);
+        setEditedRecipe((prev) => ({ ...prev, image: result }));
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(files[0]);
     }
   };
 

@@ -1,9 +1,9 @@
 import axios from "axios";
 const baseUrl = "/api/recipes";
 
-let token = null;
+let token: string | null = null;
 
-const setToken = (newToken) => {
+const setToken = (newToken: string) => {
   token = `Bearer ${newToken}`;
 };
 
@@ -11,7 +11,7 @@ const getAll = () => {
   return axios.get(baseUrl).then((res) => res.data);
 };
 
-const create = async (newObject) => {
+const create = async (newObject: object) => {
   const config = {
     headers: { Authorization: token },
   };
@@ -19,8 +19,9 @@ const create = async (newObject) => {
   return response.data;
 };
 
-const update = (id, newObject) => {
-  return axios.put(`${baseUrl}/${id}`, newObject).then((res) => res.data);
+const update = async (id: string, newObject: object) => {
+  const response = await axios.put(`${baseUrl}/${id}`, newObject);
+  return response.data;
 };
 
 export default { getAll, create, update, setToken };
