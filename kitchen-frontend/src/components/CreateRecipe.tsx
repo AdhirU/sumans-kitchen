@@ -7,7 +7,6 @@ const CreateRecipe = () => {
     description: "",
     ingredients: [""],
     directions: [""],
-    image: null,
   };
   return (
     <RecipeForm

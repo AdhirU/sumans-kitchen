@@ -71,21 +71,6 @@ const RecipeDetail = () => {
         <Typography fontSize={16} sx={{ marginBottom: "16px" }}>
           {recipe.description}
         </Typography>
-        {recipe.image && (
-          <Box
-            component="img"
-            display="block"
-            margin="auto"
-            maxHeight={450}
-            alt={recipe.title}
-            src={recipe.image}
-            sx={{
-              width: { md: "70%", xs: "100%" },
-              borderRadius: 2,
-              marginBottom: 2,
-            }}
-          />
-        )}
 
         <Box sx={{ marginBottom: 2 }}>
           <Typography variant="h5">Ingredients:</Typography>

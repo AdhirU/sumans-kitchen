@@ -20,7 +20,6 @@ type arrayFields = "ingredients" | "directions";
 
 const RecipeForm = ({ recipe, onSave }: Props) => {
   const [editedRecipe, setEditedRecipe] = useState({ ...recipe });
-  const [imagePreview, setImagePreview] = useState(recipe.image);
 
   const handleEditChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -53,19 +52,6 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
     });
   };
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files[0]) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setImagePreview(result);
-        setEditedRecipe((prev) => ({ ...prev, image: result }));
-      };
-      reader.readAsDataURL(files[0]);
-    }
-  };
-
   return (
     <Container>
       <Paper elevation={3} sx={{ padding: 3, marginTop: 3, borderRadius: 2 }}>
@@ -88,23 +74,6 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
           onChange={handleEditChange}
           sx={{ marginBottom: 2 }}
         />
-        {imagePreview && (
-          <img
-            src={imagePreview}
-            alt="Recipe"
-            style={{ width: "100%", borderRadius: "8px", marginBottom: "10px" }}
-          />
-        )}
-        <Box textAlign="center">
-          <Button
-            variant="contained"
-            component="label"
-            sx={{ marginBottom: 2, background: "#f8d7da", color: "#9c3848" }}
-          >
-            Upload Image
-            <input type="file" hidden onChange={handleImageChange} />
-          </Button>
-        </Box>
         <Box sx={{ marginBottom: 2 }}>
           <Typography variant="h5">Ingredients:</Typography>
           <Paper
@@ -194,7 +163,6 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
         <Box textAlign="center">
           <Button
             variant="contained"
-            // color="primary"
             onClick={() => onSave(editedRecipe)}
             sx={{
               marginTop: 2,

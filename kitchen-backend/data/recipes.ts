@@ -6,7 +6,6 @@ const recipes: Recipe[] = [
     title: "Spaghetti Carbonara",
     description:
       "A classic Italian pasta dish with eggs, cheese, pancetta, and pepper.",
-    image: null,
     ingredients: [
       "Spaghetti",
       "Eggs",
@@ -26,7 +25,6 @@ const recipes: Recipe[] = [
     title: "Chicken Curry",
     description:
       "A flavorful curry dish with tender chicken and aromatic spices.",
-    image: null,
     ingredients: [
       "Chicken",
       "Onions",

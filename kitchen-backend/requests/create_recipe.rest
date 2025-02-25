@@ -4,7 +4,6 @@ Content-Type: application/json
 {
   "title": "Jam Sandwich",
   "description": "Two pieces of bread with some jam filling inside",
-  "image": null,
   "ingredients": [
     "Bread",
     "Jam"
