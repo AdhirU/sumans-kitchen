@@ -45,9 +45,9 @@ export default function Header() {
         {/* Navigation Links - Hidden on Small Screens */}
         <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
           {pages.map((page) => (
-            <MenuItem key={page.name} sx={{ color: "black" }}>
-              <Link to={page.path}>{page.name}</Link>
-            </MenuItem>
+            <Link to={page.path} key={page.name}>
+              <MenuItem sx={{ color: "black" }}>{page.name}</MenuItem>
+            </Link>
           ))}
         </Box>
 
