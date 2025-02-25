@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import Home from "./components/Home";
 import RecipeDetail from "./components/RecipeDetail";
 import CreateRecipe from "./components/CreateRecipe";
+import PageNotFound from "./components/PageNotFound";
 import { useAppDispatch } from "./hooks";
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/recipe/:id" element={<RecipeDetail />} />
         <Route path="/new-recipe" element={<CreateRecipe />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
   );

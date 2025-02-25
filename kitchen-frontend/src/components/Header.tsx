@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -12,11 +13,13 @@ import {
   ListItemText,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import SearchIcon from "@mui/icons-material/Search";
-import PersonIcon from "@mui/icons-material/Person";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
-const pages = ["All Recipes", "My Recipes", "Upload New Recipe", "Login"];
+const pages = [
+  { name: "All Recipes", path: "/" },
+  { name: "My Recipes", path: "/my-recipes" },
+  { name: "Upload New Recipe", path: "/upload" },
+  { name: "Login", path: "/login" },
+];
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -42,8 +45,8 @@ export default function Header() {
         {/* Navigation Links - Hidden on Small Screens */}
         <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
           {pages.map((page) => (
-            <MenuItem key={page} sx={{ color: "black" }}>
-              {page}
+            <MenuItem key={page.name} sx={{ color: "black" }}>
+              <Link to={page.path}>{page.name}</Link>
             </MenuItem>
           ))}
         </Box>
@@ -60,8 +63,13 @@ export default function Header() {
         <Drawer anchor="left" open={mobileOpen} onClose={handleDrawerToggle}>
           <List sx={{ width: 250 }}>
             {pages.map((page) => (
-              <ListItem button key={page} onClick={handleDrawerToggle}>
-                <ListItemText primary={page} />
+              <ListItem
+                component={Link}
+                to={page.path}
+                key={page.name}
+                onClick={handleDrawerToggle}
+              >
+                <ListItemText primary={page.name} />
               </ListItem>
             ))}
           </List>
