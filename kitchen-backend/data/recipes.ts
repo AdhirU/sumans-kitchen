@@ -2,7 +2,7 @@ import { Recipe } from "../src/types";
 
 const recipes: Recipe[] = [
   {
-    id: 1,
+    id: "57ac3a70-f321-11ef-848c-251b2404b223",
     title: "Spaghetti Carbonara",
     description:
       "A classic Italian pasta dish with eggs, cheese, pancetta, and pepper.",
@@ -22,7 +22,7 @@ const recipes: Recipe[] = [
     ],
   },
   {
-    id: 2,
+    id: "6868be60-f321-11ef-848c-251b2404b223",
     title: "Chicken Curry",
     description:
       "A flavorful curry dish with tender chicken and aromatic spices.",

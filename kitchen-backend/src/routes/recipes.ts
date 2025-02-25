@@ -10,7 +10,7 @@ router.get("/", (_req, res: Response<Recipe[]>) => {
 });
 
 router.get("/:id", (req, res) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
   const recipe = recipeService.findById(id);
   if (!recipe) {
     res.status(404).end();
@@ -29,7 +29,7 @@ router.post(
 );
 
 router.delete("/:id", (req, res) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
   recipeService.deleteById(id);
 
   res.status(204).end();
