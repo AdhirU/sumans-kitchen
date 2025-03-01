@@ -1,6 +1,10 @@
 import express, { Request, Response } from "express";
 import recipeService from "../services/recipeService";
-import middleware from "../utils/middleware";
+import {
+  newRecipeParser,
+  recipeParser,
+  newRecipeErrorHandler,
+} from "../utils/middleware";
 import { NewRecipe, Recipe } from "../types";
 
 const router = express.Router();
@@ -21,10 +25,20 @@ router.get("/:id", (req, res) => {
 
 router.post(
   "/",
-  middleware.newRecipeParser,
+  newRecipeParser,
   (req: Request<unknown, unknown, NewRecipe>, res: Response<Recipe>) => {
     const addedRecipe = recipeService.addRecipe(req.body);
-    res.send(addedRecipe);
+    res.status(201).send(addedRecipe);
+  }
+);
+
+router.put(
+  "/:id",
+  recipeParser,
+  (req: Request<{ id: string }, unknown, Recipe>, res: Response<Recipe>) => {
+    const id = req.params.id;
+    const updatedRecipe = recipeService.updateRecipe(id, req.body);
+    res.send(updatedRecipe);
   }
 );
 
@@ -35,6 +49,6 @@ router.delete("/:id", (req, res) => {
   res.status(204).end();
 });
 
-router.use(middleware.newRecipeErrorHandler);
+router.use(newRecipeErrorHandler);
 
 export default router;

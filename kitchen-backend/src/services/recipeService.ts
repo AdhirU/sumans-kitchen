@@ -21,8 +21,16 @@ const addRecipe = (recipe: NewRecipe) => {
   return addedRecipe;
 };
 
+const updateRecipe = (id: string, updatedRecipe: Recipe) => {
+  const recipeIdx = recipes.findIndex((r) => r.id === id);
+  if (recipeIdx !== -1) {
+    recipes[recipeIdx] = updatedRecipe;
+  }
+  return updatedRecipe;
+};
+
 const deleteById = (id: string) => {
   recipes.filter((r) => r.id !== id);
 };
 
-export default { getAll, findById, addRecipe, deleteById };
+export default { getAll, findById, addRecipe, updateRecipe, deleteById };

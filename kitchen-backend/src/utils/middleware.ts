@@ -1,8 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { newRecipeSchema } from "./zodSchemas";
+import { newRecipeSchema, recipeSchema } from "../types";
 import { z } from "zod";
 
-const newRecipeParser = (req: Request, _res: Response, next: NextFunction) => {
+export const newRecipeParser = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
   try {
     newRecipeSchema.parse(req.body);
     next();
@@ -11,7 +15,20 @@ const newRecipeParser = (req: Request, _res: Response, next: NextFunction) => {
   }
 };
 
-const newRecipeErrorHandler = (
+export const recipeParser = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  try {
+    recipeSchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const newRecipeErrorHandler = (
   error: unknown,
   _req: Request,
   res: Response,
@@ -23,5 +40,3 @@ const newRecipeErrorHandler = (
     next(error);
   }
 };
-
-export default { newRecipeParser, newRecipeErrorHandler };

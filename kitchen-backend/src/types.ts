@@ -1,9 +1,14 @@
-export interface Recipe {
-  id: string;
-  title: string;
-  description: string;
-  ingredients: string[];
-  directions: string[];
-}
+import { z } from "zod";
 
-export type NewRecipe = Omit<Recipe, "id">;
+export const recipeSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  ingredients: z.array(z.string()),
+  directions: z.array(z.string()),
+});
+
+export const newRecipeSchema = recipeSchema.omit({ id: true });
+
+export type Recipe = z.infer<typeof recipeSchema>;
+export type NewRecipe = z.infer<typeof newRecipeSchema>;

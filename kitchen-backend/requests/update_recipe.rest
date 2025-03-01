@@ -1,0 +1,22 @@
+PUT http://localhost:3000/api/recipes/6868be60-f321-11ef-848c-251b2404b223
+Content-Type: application/json
+
+{
+    "id": "6868be60-f321-11ef-848c-251b2404b223",
+    "title": "Chicken Curry",
+    "description": "Modified the description",
+    "ingredients": [
+      "Chicken",
+      "Onions",
+      "Tomatoes",
+      "Garlic",
+      "Ginger",
+      "Spices"
+    ],
+    "directions": [
+      "Modified: Sauté onions and garlic",
+      "Add chicken",
+      "Pour in tomatoes and spices",
+      "Simmer until cooked"
+    ]
+  }
