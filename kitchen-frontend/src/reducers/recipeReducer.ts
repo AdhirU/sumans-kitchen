@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import recipesService from "../services/recipes";
 import { AppDispatch } from "../store";
-import { Recipe } from "../types";
+import { NewRecipe, Recipe } from "../types";
 
 const initialState: Recipe[] = [];
 
@@ -12,10 +12,13 @@ const recipeSlice = createSlice({
     setRecipes(_state, action) {
       return action.payload;
     },
+    appendRecipe(state, action) {
+      state.push(action.payload);
+    },
   },
 });
 
-export const { setRecipes } = recipeSlice.actions;
+export const { setRecipes, appendRecipe } = recipeSlice.actions;
 
 export const initializeRecipes = () => {
   return async (dispatch: AppDispatch) => {
@@ -24,6 +27,18 @@ export const initializeRecipes = () => {
       dispatch(setRecipes(recipes));
     } catch {
       console.log("ERROR!!");
+    }
+  };
+};
+
+export const createRecipe = (recipeObject: NewRecipe) => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const createdRecipe = await recipesService.create(recipeObject);
+      dispatch(appendRecipe(createdRecipe));
+      return createdRecipe.id;
+    } catch {
+      console.log("Error!");
     }
   };
 };

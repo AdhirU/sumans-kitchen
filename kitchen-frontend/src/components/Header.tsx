@@ -17,7 +17,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 const pages = [
   { name: "All Recipes", path: "/" },
   { name: "My Recipes", path: "/my-recipes" },
-  { name: "Upload New Recipe", path: "/upload" },
+  { name: "Upload New Recipe", path: "/new-recipe" },
   { name: "Login", path: "/login" },
 ];
 
@@ -35,12 +35,14 @@ export default function Header() {
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         {/* Logo */}
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: "bold", color: "#9c3848", fontFamily: "serif" }}
-        >
-          Suman's <span style={{ fontWeight: "normal" }}>Kitchen</span>
-        </Typography>
+        <Link to="/">
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", color: "#9c3848", fontFamily: "serif" }}
+          >
+            Suman's <span style={{ fontWeight: "normal" }}>Kitchen</span>
+          </Typography>
+        </Link>
 
         {/* Navigation Links - Hidden on Small Screens */}
         <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
@@ -74,19 +76,6 @@ export default function Header() {
             ))}
           </List>
         </Drawer>
-
-        {/* Icons */}
-        {/* <Box sx={{ display: "flex", gap: 1.5 }}>
-          <IconButton sx={{ color: "black" }}>
-            <SearchIcon />
-          </IconButton>
-          <IconButton sx={{ color: "black" }}>
-            <PersonIcon />
-          </IconButton>
-          <IconButton sx={{ color: "black" }}>
-            <ShoppingCartIcon />
-          </IconButton>
-        </Box> */}
       </Toolbar>
     </AppBar>
   );
