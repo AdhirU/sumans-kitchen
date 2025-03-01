@@ -11,23 +11,33 @@ import { EditOutlined } from "@mui/icons-material";
 
 import RecipeForm from "./RecipeForm";
 import { useParams } from "react-router-dom";
-import { useAppSelector } from "../hooks";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { NewRecipe, Recipe } from "../types";
+import PageNotFound from "./PageNotFound";
+import { modifyRecipe } from "../reducers/recipeReducer";
 
 const RecipeDetail = () => {
   const isOwner = true;
   const [isEditing, setIsEditing] = useState(false);
+  const dispatch = useAppDispatch();
 
   const id = useParams().id;
   const recipe = useAppSelector((state) =>
     state.recipes.find((r) => r.id === id)
   );
 
-  if (!recipe) {
-    return <Typography>Recipe not found.</Typography>;
+  if (!id || !recipe) {
+    return <PageNotFound />;
   }
 
+  const saveRecipe = async (newRecipe: NewRecipe) => {
+    const updatedRecipe: Recipe = { ...newRecipe, id };
+    await dispatch(modifyRecipe(id, updatedRecipe));
+    setIsEditing(false);
+  };
+
   return isEditing ? (
-    <RecipeForm recipe={recipe} onSave={() => setIsEditing(false)} />
+    <RecipeForm recipe={recipe} onSave={saveRecipe} />
   ) : (
     <Container sx={{ padding: 0 }}>
       <Paper

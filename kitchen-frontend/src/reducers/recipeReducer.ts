@@ -15,10 +15,15 @@ const recipeSlice = createSlice({
     appendRecipe(state, action) {
       state.push(action.payload);
     },
+    updateRecipe(state, action) {
+      return state.map((r) =>
+        r.id === action.payload.id ? action.payload : r
+      );
+    },
   },
 });
 
-export const { setRecipes, appendRecipe } = recipeSlice.actions;
+export const { setRecipes, appendRecipe, updateRecipe } = recipeSlice.actions;
 
 export const initializeRecipes = () => {
   return async (dispatch: AppDispatch) => {
@@ -40,6 +45,13 @@ export const createRecipe = (recipeObject: NewRecipe) => {
     } catch {
       console.log("Error!");
     }
+  };
+};
+
+export const modifyRecipe = (id: string, recipeObject: Recipe) => {
+  return async (dispatch: AppDispatch) => {
+    const updatedRecipe = await recipesService.update(id, recipeObject);
+    dispatch(updateRecipe(updatedRecipe));
   };
 };
 
