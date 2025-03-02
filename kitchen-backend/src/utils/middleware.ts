@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { newRecipeSchema, recipeSchema } from "../types";
 import { z } from "zod";
+import logger from "./logger";
 
 export const newRecipeParser = (
   req: Request,
@@ -28,12 +29,14 @@ export const recipeParser = (
   }
 };
 
-export const recipeErrorHandler = (
+export const errorHandler = (
   error: unknown,
   _req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  logger.error(error);
+
   if (error instanceof z.ZodError) {
     res.status(400).send({ error: error.issues });
   } else if (error instanceof Error && error.name === "CastError") {

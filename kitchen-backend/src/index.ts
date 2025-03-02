@@ -7,6 +7,8 @@ import logger from "./utils/logger";
 import config from "./utils/config";
 
 import recipeRouter from "./routes/recipes";
+import generateRouter from "./routes/generate";
+import { errorHandler } from "./utils/middleware";
 
 const app = express();
 
@@ -33,6 +35,9 @@ mongoose
   });
 
 app.use("/api/recipes", recipeRouter);
+app.use("/api/generate", generateRouter);
+
+app.use(errorHandler);
 
 app.listen(config.PORT, () => {
   logger.info(`Server running on port ${config.PORT}`);

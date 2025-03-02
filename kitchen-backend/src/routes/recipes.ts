@@ -1,10 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import recipeService from "../services/recipeService";
-import {
-  newRecipeParser,
-  recipeParser,
-  recipeErrorHandler,
-} from "../utils/middleware";
+import { newRecipeParser, recipeParser } from "../utils/middleware";
 import { INewRecipe, IRecipe } from "../types";
 
 const router = express.Router();
@@ -60,7 +56,5 @@ router.delete("/:id", async (req, res) => {
 
   res.status(204).end();
 });
-
-router.use(recipeErrorHandler);
 
 export default router;
