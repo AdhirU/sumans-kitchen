@@ -1,12 +1,19 @@
 {
   "name": "kitchen-backend",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "tsc": "tsc",
-    "dev": "ts-node-dev src/index.ts",
+    "dev": "NODE_ENV=development ts-node-dev src/index.ts",
     "lint": "eslint .",
-    "start": "node dist/index.js"
+    "start": "NODE_ENV=production node dist/src/index.js",
+    "test": "NODE_ENV=test node --test",
+    "build:server": "rm -rf dist && npm run tsc",
+    "build:ui": "rm -rf public && cd ../kitchen-frontend/ && npm run build && cp -R dist ../kitchen-backend/public",
+    "deploy": "fly deploy",
+    "deploy:full": "npm run build:ui && npm run build:server && npm run deploy",
+    "logs:prod": "fly logs",
+    "start:test": "NODE_ENV=test node dist/src/index.js"
   },
   "author": "Adhir Uchil",
   "license": "ISC",
@@ -15,8 +22,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "mongoose": "^8.11.0",
     "morgan": "^1.10.0",
-    "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

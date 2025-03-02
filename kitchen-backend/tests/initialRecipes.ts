@@ -1,6 +1,6 @@
-import { Recipe } from "../src/types";
+import { IRecipe } from "../src/types";
 
-const recipes: Recipe[] = [
+const recipes: IRecipe[] = [
   {
     id: "57ac3a70-f321-11ef-848c-251b2404b223",
     title: "Spaghetti Carbonara",

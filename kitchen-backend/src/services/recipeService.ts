@@ -1,36 +1,32 @@
-import { v1 as uuid } from "uuid";
+import { INewRecipe, IRecipe } from "../types";
+import Recipe from "../models/recipe";
 
-import recipes from "../../data/recipes";
-import { NewRecipe, Recipe } from "../types";
-
-const getAll = (): Recipe[] => {
+const getAll = async () => {
+  const recipes = await Recipe.find<IRecipe>({});
   return recipes;
 };
 
-const findById = (id: string): Recipe | undefined => {
-  const recipe = recipes.find((r) => r.id === id);
+const findById = async (id: string) => {
+  const recipe = await Recipe.findById(id);
   return recipe;
 };
 
-const addRecipe = (recipe: NewRecipe) => {
-  const addedRecipe = {
-    id: uuid(),
-    ...recipe,
-  };
-  recipes.push(addedRecipe);
-  return addedRecipe;
+const addRecipe = async (recipe: INewRecipe) => {
+  const recipeToAdd = new Recipe(recipe);
+
+  const savedRecipe = await recipeToAdd.save();
+  return savedRecipe;
 };
 
-const updateRecipe = (id: string, updatedRecipe: Recipe) => {
-  const recipeIdx = recipes.findIndex((r) => r.id === id);
-  if (recipeIdx !== -1) {
-    recipes[recipeIdx] = updatedRecipe;
-  }
+const updateRecipe = async (id: string, recipe: IRecipe) => {
+  const updatedRecipe = await Recipe.findByIdAndUpdate(id, recipe, {
+    new: true,
+  });
   return updatedRecipe;
 };
 
-const deleteById = (id: string) => {
-  recipes.filter((r) => r.id !== id);
+const deleteById = async (id: string) => {
+  await Recipe.findByIdAndDelete(id);
 };
 
 export default { getAll, findById, addRecipe, updateRecipe, deleteById };

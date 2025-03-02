@@ -28,7 +28,7 @@ export const recipeParser = (
   }
 };
 
-export const newRecipeErrorHandler = (
+export const recipeErrorHandler = (
   error: unknown,
   _req: Request,
   res: Response,
@@ -36,6 +36,8 @@ export const newRecipeErrorHandler = (
 ) => {
   if (error instanceof z.ZodError) {
     res.status(400).send({ error: error.issues });
+  } else if (error instanceof Error && error.name === "CastError") {
+    res.status(400).send({ error: "Malformatted id" });
   } else {
     next(error);
   }

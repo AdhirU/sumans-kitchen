@@ -1,21 +1,22 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import recipeService from "../services/recipeService";
 import {
   newRecipeParser,
   recipeParser,
-  newRecipeErrorHandler,
+  recipeErrorHandler,
 } from "../utils/middleware";
-import { NewRecipe, Recipe } from "../types";
+import { INewRecipe, IRecipe } from "../types";
 
 const router = express.Router();
 
-router.get("/", (_req, res: Response<Recipe[]>) => {
-  res.send(recipeService.getAll());
+router.get("/", async (_req, res: Response<IRecipe[]>) => {
+  const recipes = await recipeService.getAll();
+  res.send(recipes);
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   const id = req.params.id;
-  const recipe = recipeService.findById(id);
+  const recipe = await recipeService.findById(id);
   if (!recipe) {
     res.status(404).end();
     return;
@@ -26,8 +27,11 @@ router.get("/:id", (req, res) => {
 router.post(
   "/",
   newRecipeParser,
-  (req: Request<unknown, unknown, NewRecipe>, res: Response<Recipe>) => {
-    const addedRecipe = recipeService.addRecipe(req.body);
+  async (
+    req: Request<unknown, unknown, INewRecipe>,
+    res: Response<IRecipe>
+  ) => {
+    const addedRecipe = await recipeService.addRecipe(req.body);
     res.status(201).send(addedRecipe);
   }
 );
@@ -35,20 +39,28 @@ router.post(
 router.put(
   "/:id",
   recipeParser,
-  (req: Request<{ id: string }, unknown, Recipe>, res: Response<Recipe>) => {
+  async (
+    req: Request<{ id: string }, unknown, IRecipe>,
+    res: Response<IRecipe | null>,
+    next: NextFunction
+  ) => {
     const id = req.params.id;
-    const updatedRecipe = recipeService.updateRecipe(id, req.body);
-    res.send(updatedRecipe);
+    try {
+      const updatedRecipe = await recipeService.updateRecipe(id, req.body);
+      res.send(updatedRecipe);
+    } catch (error) {
+      next(error);
+    }
   }
 );
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   const id = req.params.id;
-  recipeService.deleteById(id);
+  await recipeService.deleteById(id);
 
   res.status(204).end();
 });
 
-router.use(newRecipeErrorHandler);
+router.use(recipeErrorHandler);
 
 export default router;

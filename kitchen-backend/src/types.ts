@@ -10,5 +10,5 @@ export const recipeSchema = z.object({
 
 export const newRecipeSchema = recipeSchema.omit({ id: true });
 
-export type Recipe = z.infer<typeof recipeSchema>;
-export type NewRecipe = z.infer<typeof newRecipeSchema>;
+export type IRecipe = z.infer<typeof recipeSchema>;
+export type INewRecipe = z.infer<typeof newRecipeSchema>;

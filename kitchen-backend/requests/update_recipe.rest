@@ -1,22 +1,18 @@
-PUT http://localhost:3000/api/recipes/6868be60-f321-11ef-848c-251b2404b223
+PUT http://localhost:3000/api/recipes/67c3fb09f8f2b6eee331834f
 Content-Type: application/json
 
 {
-    "id": "6868be60-f321-11ef-848c-251b2404b223",
-    "title": "Chicken Curry",
-    "description": "Modified the description",
-    "ingredients": [
-      "Chicken",
-      "Onions",
-      "Tomatoes",
-      "Garlic",
-      "Ginger",
-      "Spices"
-    ],
-    "directions": [
-      "Modified: Sauté onions and garlic",
-      "Add chicken",
-      "Pour in tomatoes and spices",
-      "Simmer until cooked"
-    ]
-  }
+  "title": "Modified Jam Sandwich",
+  "description": "Two pieces of bread with some jam filling inside",
+  "ingredients": [
+    "Bread",
+    "Jam",
+    "Pepper"
+  ],
+  "directions": [
+    "Spread the jam on the slices of bread",
+    "Join the breads together and enjoy!",
+    "Sprinkle some pepper"
+  ],
+  "id": "67c3fb09f8f2b6eee331834f"
+}
