@@ -5,12 +5,12 @@ import { z } from "zod";
 const router = express.Router();
 
 export const requestPromptSchema = z.object({
-  prompt: z.string(),
+  promptText: z.string(),
 });
 
 router.post("/from-prompt", async (req, res: Response) => {
-  const prompt = requestPromptSchema.parse(req.body).prompt;
-  const recipe = await generateService.recipeFromPrompt(prompt);
+  const promptText = requestPromptSchema.parse(req.body).promptText;
+  const recipe = await generateService.recipeFromPrompt(promptText);
   if (!recipe) {
     res
       .status(400)

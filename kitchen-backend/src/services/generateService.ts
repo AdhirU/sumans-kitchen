@@ -3,7 +3,7 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { newRecipeSchema } from "../types";
 const openai = new OpenAI();
 
-const recipeFromPrompt = async (prompt: string) => {
+const recipeFromPrompt = async (promptText: string) => {
   const completion = await openai.beta.chat.completions.parse({
     model: "gpt-4o-mini",
     messages: [
@@ -14,7 +14,7 @@ const recipeFromPrompt = async (prompt: string) => {
       },
       {
         role: "user",
-        content: prompt,
+        content: promptText,
       },
     ],
     response_format: zodResponseFormat(newRecipeSchema, "recipe"),
