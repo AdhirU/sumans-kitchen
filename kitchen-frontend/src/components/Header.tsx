@@ -18,7 +18,7 @@ const pages = [
   { name: "All Recipes", path: "/" },
   { name: "My Recipes", path: "/my-recipes" },
   { name: "Upload New Recipe", path: "/new-recipe" },
-  { name: "Login", path: "/login" },
+  // { name: "Login", path: "/login" },
 ];
 
 export default function Header() {

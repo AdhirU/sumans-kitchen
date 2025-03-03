@@ -15,15 +15,46 @@ const Home = () => {
     <Container sx={{ marginTop: 5 }}>
       <Grid container spacing={3}>
         {recipes.map((recipe) => (
-          <Grid key={recipe.id} width="100%">
+          <Grid key={recipe.id}>
             <Card
               component={Link}
               to={`/recipe/${recipe.id}`}
-              sx={{ display: "flex", textDecoration: "none" }}
+              sx={{
+                display: "flex",
+                width: { xs: "90vw", lg: "60vw" },
+                flexDirection: "column",
+                textDecoration: "none",
+                height: 120, // Set a fixed height
+              }}
             >
-              <CardContent>
-                <Typography variant="h6">{recipe.title}</Typography>
-                <Typography variant="body2" color="textSecondary">
+              <CardContent
+                sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
+              >
+                {/* Recipe Title */}
+                <Typography
+                  variant="h6"
+                  sx={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {recipe.title}
+                </Typography>
+
+                {/* Description */}
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{
+                    flexGrow: 1, // Pushes elements evenly
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 3, // Limit to 3 lines
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
                   {recipe.description}
                 </Typography>
               </CardContent>
