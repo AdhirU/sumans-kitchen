@@ -132,6 +132,9 @@ dist
 # Claude
 .claude
 
+# Build output
+kitchen-backend/public/
+
 # Python
 __pycache__/
 *.py[cod]

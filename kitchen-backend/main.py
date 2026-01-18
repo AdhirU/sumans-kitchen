@@ -1,8 +1,11 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from app.config import get_settings
 from app.database import close_mongo_connection, connect_to_mongo
@@ -48,6 +51,16 @@ def create_app() -> FastAPI:
     @app.get("/health")
     async def health_check():
         return {"status": "ok"}
+
+    # Serve static frontend files in production
+    public_path = Path(__file__).parent / "public"
+    if public_path.exists():
+        app.mount("/assets", StaticFiles(directory=public_path / "assets"), name="assets")
+
+        @app.get("/{path:path}")
+        async def serve_spa(path: str):
+            """Serve index.html for all non-API routes (SPA client-side routing)."""
+            return FileResponse(public_path / "index.html")
 
     return app
 
