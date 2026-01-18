@@ -128,3 +128,22 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Claude
+.claude
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+venv/
+.venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/

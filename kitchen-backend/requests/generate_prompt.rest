@@ -1,6 +1,0 @@
-POST http://localhost:3000/api/generate/from-prompt
-Content-Type: application/json
-
-{
-  "prompt": "Recipe for Dal Makhani"
-}

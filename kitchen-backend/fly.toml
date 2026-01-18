@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for sumans-kitchen on 2025-02-20T22:56:41-05:00
+# fly.toml app configuration file for sumans-kitchen FastAPI backend
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
