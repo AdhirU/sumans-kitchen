@@ -11,7 +11,15 @@ import generateService from "../services/generate";
 import { useAppDispatch } from "../hooks";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Button, CircularProgress, TextField } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Container,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { AutoAwesome, Edit, Image } from "@mui/icons-material";
 
 const emptyRecipe: NewRecipe = {
   title: "",
@@ -54,7 +62,21 @@ const CreateRecipe = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ py: 4 }}>
+      <Container maxWidth="md">
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            color: "#2d2d2d",
+            mb: 3,
+            textAlign: "center",
+          }}
+        >
+          Create New Recipe
+        </Typography>
+      </Container>
+
       <TabContext value={value}>
         <Box
           sx={{
@@ -64,65 +86,161 @@ const CreateRecipe = () => {
             width: "100%",
           }}
         >
-          <Box
+          <Paper
+            elevation={0}
             sx={{
-              borderBottom: 1,
-              borderColor: "divider",
+              borderRadius: 3,
+              border: "1px solid #e8e8e8",
+              overflow: "hidden",
             }}
           >
             <TabList
               onChange={handleChange}
-              textColor="secondary"
-              indicatorColor="secondary"
-              variant="scrollable"
-              aria-label="lab API tabs example"
+              sx={{
+                "& .MuiTab-root": {
+                  textTransform: "none",
+                  fontWeight: 500,
+                  fontSize: "0.95rem",
+                  px: 3,
+                  minHeight: 56,
+                },
+                "& .Mui-selected": {
+                  color: "#9c3848 !important",
+                },
+                "& .MuiTabs-indicator": {
+                  backgroundColor: "#9c3848",
+                },
+              }}
             >
-              <Tab label="Enter Recipe Details" value="text" />
-              <Tab label="Generate From Prompt" value="prompt" />
-              <Tab label="Generate From Image" value="image" />
+              <Tab
+                icon={<Edit sx={{ fontSize: 20 }} />}
+                iconPosition="start"
+                label="Manual Entry"
+                value="text"
+              />
+              <Tab
+                icon={<AutoAwesome sx={{ fontSize: 20 }} />}
+                iconPosition="start"
+                label="AI Generate"
+                value="prompt"
+              />
+              <Tab
+                icon={<Image sx={{ fontSize: 20 }} />}
+                iconPosition="start"
+                label="From Image"
+                value="image"
+              />
             </TabList>
-          </Box>
+          </Paper>
+
           <Box width="100%" display="flex" justifyContent="center">
             <TabPanel value="type"></TabPanel>
             <TabPanel
-              sx={{ width: { md: "50vw" }, padding: { xs: 2, md: 2 } }}
+              sx={{
+                width: { xs: "100%", md: "600px" },
+                px: { xs: 2, md: 0 },
+                py: 4,
+              }}
               value="prompt"
             >
-              <Box display="flex" alignItems="center">
-                <TextField
-                  size="small"
-                  placeholder="Example: Punjabi dal tadka extra spicy"
-                  fullWidth
-                  sx={{ flex: 9 }}
-                  value={promptText}
-                  onChange={({ target }) => setPromptText(target.value)}
-                />
-                <Button
-                  variant="contained"
-                  size="small"
-                  sx={{ flex: 1, marginLeft: 2, fontSize: "0.7em" }}
-                  onClick={generateFromPrompt}
-                  disabled={loading}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  border: "1px solid #e8e8e8",
+                  background:
+                    "linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)",
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{ mb: 2, color: "#666", textAlign: "center" }}
                 >
-                  Generate
-                </Button>
-              </Box>
+                  Describe the recipe you want and AI will generate it for you
+                </Typography>
+                <Box display="flex" gap={2} flexDirection={{ xs: "column", sm: "row" }}>
+                  <TextField
+                    size="small"
+                    placeholder="e.g., Spicy Thai green curry with tofu"
+                    fullWidth
+                    value={promptText}
+                    onChange={({ target }) => setPromptText(target.value)}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        backgroundColor: "#fff",
+                      },
+                    }}
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={generateFromPrompt}
+                    disabled={loading || !promptText.trim()}
+                    sx={{
+                      px: 4,
+                      background: "#9c3848",
+                      borderRadius: 2,
+                      textTransform: "none",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                      "&:hover": {
+                        background: "#7d2d3a",
+                      },
+                      "&:disabled": {
+                        background: "#ccc",
+                      },
+                    }}
+                  >
+                    Generate
+                  </Button>
+                </Box>
+              </Paper>
             </TabPanel>
-            <TabPanel value="image">Development pending</TabPanel>
+            <TabPanel
+              sx={{
+                width: { xs: "100%", md: "600px" },
+                px: { xs: 2, md: 0 },
+                py: 4,
+              }}
+              value="image"
+            >
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  border: "1px dashed #ccc",
+                  textAlign: "center",
+                }}
+              >
+                <Image sx={{ fontSize: 48, color: "#ccc", mb: 2 }} />
+                <Typography variant="body1" sx={{ color: "#999" }}>
+                  Image upload coming soon
+                </Typography>
+              </Paper>
+            </TabPanel>
           </Box>
         </Box>
       </TabContext>
+
       {loading && (
         <Box
           display="flex"
           height="40vh"
           justifyContent="center"
           alignItems="center"
+          flexDirection="column"
+          gap={2}
         >
-          <CircularProgress />
+          <CircularProgress sx={{ color: "#9c3848" }} />
+          <Typography variant="body1" sx={{ color: "#666" }}>
+            Generating your recipe...
+          </Typography>
         </Box>
       )}
-      {selectedRecipe && (
+
+      {selectedRecipe && !loading && (
         <RecipeForm recipe={selectedRecipe} onSave={saveRecipe} />
       )}
     </Box>

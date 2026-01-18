@@ -7,8 +7,10 @@ import {
   TextField,
   Button,
   IconButton,
+  Divider,
+  Avatar,
 } from "@mui/material";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, Restaurant, CheckCircleOutline } from "@mui/icons-material";
 import { NewRecipe } from "../types";
 
 interface Props {
@@ -60,129 +62,245 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
   };
 
   return (
-    <Container>
-      <Paper elevation={3} sx={{ padding: 3, marginTop: 3, borderRadius: 2 }}>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      {/* Header Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 3, sm: 4 },
+          mb: 3,
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)",
+          border: "1px solid #f0e0e0",
+        }}
+      >
         <TextField
           fullWidth
           variant="outlined"
           name="title"
-          label="Title"
+          label="Recipe Title"
           value={editedRecipe.title}
           onChange={handleEditChange}
-          sx={{ marginBottom: 2 }}
+          sx={{
+            mb: 3,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              fontSize: "1.25rem",
+              fontWeight: 600,
+            },
+          }}
         />
         <TextField
           fullWidth
           multiline
+          rows={3}
           variant="outlined"
           name="description"
           label="Description"
           value={editedRecipe.description}
           onChange={handleEditChange}
-          sx={{ marginBottom: 2 }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+            },
+          }}
         />
-        <Box sx={{ marginBottom: 2 }}>
-          <Typography variant="h5">Ingredients:</Typography>
-          <Paper
-            elevation={1}
-            sx={{
-              padding: { xs: 1, md: 3 },
-              borderRadius: 2,
-              marginTop: 2,
-              backgroundColor: "#f9f9f9",
-            }}
-          >
-            {editedRecipe.ingredients.map((ingredient, index) => (
-              <Box
-                key={index}
-                display="flex"
-                alignItems="center"
-                sx={{ marginBottom: 1 }}
-              >
-                <TextField
-                  fullWidth
-                  multiline
-                  size="small"
-                  value={ingredient}
-                  onChange={(e) =>
-                    handleArrayChange(index, "ingredients", e.target.value)
-                  }
-                />
-                <IconButton
-                  onClick={() => handleRemoveItem(index, "ingredients")}
-                >
-                  <Delete />
-                </IconButton>
-              </Box>
-            ))}
-            <Button
-              startIcon={<Add />}
-              onClick={() => handleAddItem("ingredients")}
-              sx={{ color: "#9c3848" }}
-            >
-              Add Ingredient
-            </Button>
-          </Paper>
-        </Box>
-        <Box>
-          <Typography variant="h5">Directions:</Typography>
-          <Paper
-            elevation={1}
-            sx={{
-              padding: { xs: 1, md: 3 },
-              borderRadius: 2,
-              marginTop: 2,
-              backgroundColor: "#f9f9f9",
-            }}
-          >
-            {editedRecipe.directions.map((step, index) => (
-              <Box
-                key={index}
-                display="flex"
-                alignItems="center"
-                sx={{ marginBottom: 1 }}
-              >
-                <TextField
-                  fullWidth
-                  multiline
-                  size="small"
-                  value={step}
-                  onChange={(e) =>
-                    handleArrayChange(index, "directions", e.target.value)
-                  }
-                />
-                <IconButton
-                  onClick={() => handleRemoveItem(index, "directions")}
-                >
-                  <Delete />
-                </IconButton>
-              </Box>
-            ))}
-            <Button
-              startIcon={<Add />}
-              onClick={() => handleAddItem("directions")}
-              sx={{ color: "#9c3848" }}
-            >
-              Add Direction
-            </Button>
-          </Paper>
-        </Box>
-        <Box textAlign="center">
-          <Button
-            variant="contained"
-            onClick={handleSave}
-            disabled={loading}
-            sx={{
-              marginTop: 2,
-              background: "#f8d7da",
-              color: "#9c3848",
-            }}
-          >
-            {loading ? "Saving Recipe" : "Save Recipe"}
-          </Button>
-        </Box>
       </Paper>
+
+      {/* Ingredients Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 3, sm: 4 },
+          mb: 3,
+          borderRadius: 3,
+          border: "1px solid #e8e8e8",
+        }}
+      >
+        <Box display="flex" alignItems="center" mb={2}>
+          <Restaurant sx={{ color: "#9c3848", mr: 1.5, fontSize: 28 }} />
+          <Typography variant="h5" sx={{ fontWeight: 600, color: "#2d2d2d" }}>
+            Ingredients
+          </Typography>
+        </Box>
+        <Divider sx={{ mb: 3 }} />
+
+        {editedRecipe.ingredients.map((ingredient, index) => (
+          <Box
+            key={index}
+            display="flex"
+            alignItems="center"
+            sx={{ mb: 2 }}
+          >
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                backgroundColor: "#9c3848",
+                mr: 2,
+                flexShrink: 0,
+              }}
+            />
+            <TextField
+              fullWidth
+              size="small"
+              placeholder={`Ingredient ${index + 1}`}
+              value={ingredient}
+              onChange={(e) =>
+                handleArrayChange(index, "ingredients", e.target.value)
+              }
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  backgroundColor: "#fafafa",
+                },
+              }}
+            />
+            <IconButton
+              onClick={() => handleRemoveItem(index, "ingredients")}
+              sx={{
+                ml: 1,
+                color: "#999",
+                "&:hover": { color: "#d32f2f" },
+              }}
+            >
+              <Delete fontSize="small" />
+            </IconButton>
+          </Box>
+        ))}
+
+        <Button
+          startIcon={<Add />}
+          onClick={() => handleAddItem("ingredients")}
+          sx={{
+            mt: 1,
+            color: "#9c3848",
+            textTransform: "none",
+            fontWeight: 500,
+            "&:hover": {
+              backgroundColor: "#f8d7da",
+            },
+          }}
+        >
+          Add Ingredient
+        </Button>
+      </Paper>
+
+      {/* Directions Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 3, sm: 4 },
+          mb: 3,
+          borderRadius: 3,
+          border: "1px solid #e8e8e8",
+        }}
+      >
+        <Box display="flex" alignItems="center" mb={2}>
+          <CheckCircleOutline sx={{ color: "#9c3848", mr: 1.5, fontSize: 28 }} />
+          <Typography variant="h5" sx={{ fontWeight: 600, color: "#2d2d2d" }}>
+            Directions
+          </Typography>
+        </Box>
+        <Divider sx={{ mb: 3 }} />
+
+        {editedRecipe.directions.map((step, index) => (
+          <Box
+            key={index}
+            display="flex"
+            alignItems="flex-start"
+            sx={{ mb: 2 }}
+          >
+            <Avatar
+              sx={{
+                width: 28,
+                height: 28,
+                backgroundColor: "#9c3848",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                mr: 2,
+                mt: 0.5,
+                flexShrink: 0,
+              }}
+            >
+              {index + 1}
+            </Avatar>
+            <TextField
+              fullWidth
+              multiline
+              size="small"
+              placeholder={`Step ${index + 1}`}
+              value={step}
+              onChange={(e) =>
+                handleArrayChange(index, "directions", e.target.value)
+              }
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  backgroundColor: "#fafafa",
+                },
+              }}
+            />
+            <IconButton
+              onClick={() => handleRemoveItem(index, "directions")}
+              sx={{
+                ml: 1,
+                color: "#999",
+                "&:hover": { color: "#d32f2f" },
+              }}
+            >
+              <Delete fontSize="small" />
+            </IconButton>
+          </Box>
+        ))}
+
+        <Button
+          startIcon={<Add />}
+          onClick={() => handleAddItem("directions")}
+          sx={{
+            mt: 1,
+            color: "#9c3848",
+            textTransform: "none",
+            fontWeight: 500,
+            "&:hover": {
+              backgroundColor: "#f8d7da",
+            },
+          }}
+        >
+          Add Step
+        </Button>
+      </Paper>
+
+      {/* Save Button */}
+      <Box textAlign="center">
+        <Button
+          variant="contained"
+          size="large"
+          onClick={handleSave}
+          disabled={loading}
+          sx={{
+            px: 6,
+            py: 1.5,
+            background: "#9c3848",
+            color: "#fff",
+            borderRadius: 2,
+            textTransform: "none",
+            fontWeight: 600,
+            fontSize: "1rem",
+            "&:hover": {
+              background: "#7d2d3a",
+            },
+            "&:disabled": {
+              background: "#ccc",
+            },
+          }}
+        >
+          {loading ? "Saving..." : "Save Recipe"}
+        </Button>
+      </Box>
     </Container>
   );
 };
+
 export default RecipeForm;
