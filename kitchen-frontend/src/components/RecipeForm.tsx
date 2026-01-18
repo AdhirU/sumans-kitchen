@@ -13,13 +13,20 @@ import { NewRecipe } from "../types";
 
 interface Props {
   recipe: NewRecipe;
-  onSave: (newRecipe: NewRecipe) => void;
+  onSave: (newRecipe: NewRecipe) => Promise<void>;
 }
 
 type arrayFields = "ingredients" | "directions";
 
 const RecipeForm = ({ recipe, onSave }: Props) => {
   const [editedRecipe, setEditedRecipe] = useState({ ...recipe });
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    setLoading(true);
+    await onSave(editedRecipe);
+    setLoading(false);
+  };
 
   const handleEditChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -163,14 +170,15 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
         <Box textAlign="center">
           <Button
             variant="contained"
-            onClick={() => onSave(editedRecipe)}
+            onClick={handleSave}
+            disabled={loading}
             sx={{
               marginTop: 2,
               background: "#f8d7da",
               color: "#9c3848",
             }}
           >
-            Save Recipe
+            {loading ? "Saving Recipe" : "Save Recipe"}
           </Button>
         </Box>
       </Paper>
