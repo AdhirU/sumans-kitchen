@@ -46,6 +46,7 @@ export default function Header() {
       }}
     >
       <Toolbar
+        disableGutters
         sx={{
           display: "flex",
           justifyContent: "space-between",
