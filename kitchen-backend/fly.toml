@@ -1,9 +1,9 @@
-# fly.toml app configuration file for sumans-kitchen FastAPI backend
+# fly.toml app configuration file for sumanskitchen FastAPI backend
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'sumans-kitchen'
+app = 'sumanskitchen'
 primary_region = 'ewr'
 
 [build]
