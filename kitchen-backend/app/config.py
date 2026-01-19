@@ -16,6 +16,14 @@ class Settings(BaseSettings):
     openai_api_key: str
     openai_model: str = "gpt-4o-mini"
 
+    # JWT Authentication settings
+    jwt_secret: str
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60 * 24 * 365  # 1 year
+
+    # Google OAuth settings
+    google_client_id: str | None = None
+
     # CORS settings
     cors_origins: list[str] = ["http://localhost:5173"]
 

@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse
 
 from app.config import get_settings
 from app.database import close_mongo_connection, connect_to_mongo
-from app.routes import recipes, generate
+from app.routes import auth, generate, recipes
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,6 +45,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    app.include_router(auth.router)
     app.include_router(recipes.router)
     app.include_router(generate.router)
 
