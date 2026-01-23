@@ -13,19 +13,22 @@ class RecipeBase(BaseModel):
 class RecipeCreate(RecipeBase):
     """Schema for creating a new recipe. No id field since MongoDB generates it."""
 
-    pass
+    is_public: bool = False
 
 
 class RecipeResponse(RecipeBase):
     """Schema for API responses. Includes the id field."""
 
-    id: str = Field(..., description="Recipe ID")
+    id: str
+    is_public: bool
+    user_id: str
 
 
 class RecipeUpdate(RecipeBase):
     """Schema for updating a recipe. Includes id in body to identify the recipe."""
 
     id: str
+    is_public: bool
 
 
 class GenerateFromPromptRequest(BaseModel):
@@ -45,4 +48,6 @@ def recipe_from_mongo(doc: dict) -> RecipeResponse:
         description=doc["description"],
         ingredients=doc.get("ingredients", []),
         directions=doc.get("directions", []),
+        is_public=doc.get("is_public", False),
+        user_id=doc["user_id"],
     )

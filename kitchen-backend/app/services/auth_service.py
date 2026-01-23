@@ -231,3 +231,23 @@ async def get_current_user(
         )
 
     return user_id
+
+
+# Optional bearer scheme - doesn't raise if no token provided
+optional_bearer_scheme = HTTPBearer(auto_error=False)
+
+
+async def get_current_user_optional(
+    credentials: HTTPAuthorizationCredentials | None = Depends(optional_bearer_scheme),
+    settings: Settings = Depends(get_settings),
+) -> str | None:
+    """FastAPI dependency that optionally extracts user from JWT.
+
+    Returns the user_id if valid token provided, None if no token or invalid.
+    Use this for routes that behave differently for logged-in users.
+    """
+    if not credentials:
+        return None
+
+    user_id = verify_token(credentials.credentials, settings)
+    return user_id

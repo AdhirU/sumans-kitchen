@@ -11,10 +11,17 @@ class RecipeService:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.collection = db["recipes"]
 
-    async def get_all(self) -> list[RecipeResponse]:
-        """Get all recipes from the database."""
+    async def get_public(self) -> list[RecipeResponse]:
+        """Get all public recipes from the database."""
         recipes = []
-        async for doc in self.collection.find({}):
+        async for doc in self.collection.find({"is_public": True}):
+            recipes.append(recipe_from_mongo(doc))
+        return recipes
+
+    async def get_by_user(self, user_id: str) -> list[RecipeResponse]:
+        """Get all recipes owned by a specific user."""
+        recipes = []
+        async for doc in self.collection.find({"user_id": user_id}):
             recipes.append(recipe_from_mongo(doc))
         return recipes
 
@@ -30,9 +37,10 @@ class RecipeService:
             return recipe_from_mongo(doc)
         return None
 
-    async def add_recipe(self, recipe: RecipeCreate) -> RecipeResponse:
+    async def add_recipe(self, recipe: RecipeCreate, user_id: str) -> RecipeResponse:
         """Add a new recipe to the database."""
         doc = recipe.model_dump()
+        doc["user_id"] = user_id
         result = await self.collection.insert_one(doc)
 
         created_doc = await self.collection.find_one({"_id": result.inserted_id})
@@ -52,6 +60,7 @@ class RecipeService:
             "description": recipe.description,
             "ingredients": recipe.ingredients,
             "directions": recipe.directions,
+            "is_public": recipe.is_public,
         }
 
         result = await self.collection.find_one_and_update(
