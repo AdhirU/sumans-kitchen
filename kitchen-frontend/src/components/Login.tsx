@@ -9,8 +9,9 @@ import {
   Alert,
   Divider,
 } from "@mui/material";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { login } from "../reducers/authReducer";
+import { login, googleLogin } from "../reducers/authReducer";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -30,6 +31,17 @@ const Login = () => {
       navigate("/");
     } else {
       setError("Invalid email or password");
+    }
+  };
+
+  const handleGoogleSuccess = async (response: CredentialResponse) => {
+    if (response.credential) {
+      const success = await dispatch(googleLogin(response.credential));
+      if (success) {
+        navigate("/");
+      } else {
+        setError("Google sign-in failed");
+      }
     }
   };
 
@@ -111,6 +123,13 @@ const Login = () => {
             or
           </Typography>
         </Divider>
+
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError("Google sign-in failed")}
+          />
+        </Box>
 
         <Typography
           variant="body2"

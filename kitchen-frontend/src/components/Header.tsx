@@ -12,13 +12,16 @@ import {
   ListItemText,
   Button,
   Divider,
+  Menu as MuiMenu,
+  MenuItem,
 } from "@mui/material";
-import { Menu, Close, Restaurant, Logout } from "@mui/icons-material";
+import { Menu, Close, Restaurant, Logout, Add, MenuBook, KeyboardArrowDown } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { logout } from "../reducers/authReducer";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -28,10 +31,19 @@ export default function Header() {
     setMobileOpen(!mobileOpen);
   };
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
     setMobileOpen(false);
+    handleMenuClose();
   };
 
   const isActive = (path: string) => {
@@ -42,13 +54,9 @@ export default function Header() {
   };
 
   const pages = user
-    ? [
-        { name: "Public Recipes", path: "/" },
-        { name: "My Recipes", path: "/my-recipes" },
-        { name: "New Recipe", path: "/new-recipe" },
-      ]
+    ? [{ name: "Recipes", path: "/" }]
     : [
-        { name: "Public Recipes", path: "/" },
+        { name: "Recipes", path: "/" },
         { name: "Login", path: "/login" },
         { name: "Register", path: "/register" },
       ];
@@ -92,7 +100,7 @@ export default function Header() {
         </Link>
 
         {/* Navigation Links - Hidden on Small Screens */}
-        <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1, alignItems: "center" }}>
+        <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 1, alignItems: "center" }}>
           {pages.map((page) => (
             <Button
               component={Link}
@@ -119,12 +127,57 @@ export default function Header() {
           ))}
           {user && (
             <>
-              <Typography sx={{ color: "#666", ml: 1 }}>
+              <Button
+                onClick={handleMenuOpen}
+                sx={{
+                  color: "#666",
+                  textTransform: "none",
+                  fontSize: "0.95rem",
+                  fontWeight: 500,
+                  ml: 1,
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.5)",
+                    color: "#9c3848",
+                  },
+                }}
+                endIcon={<KeyboardArrowDown />}
+              >
                 {user.name}
-              </Typography>
-              <IconButton onClick={handleLogout} sx={{ color: "#9c3848" }}>
-                <Logout />
-              </IconButton>
+              </Button>
+              <MuiMenu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                PaperProps={{
+                  sx: { mt: 1, minWidth: 180 },
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    navigate("/my-recipes");
+                    handleMenuClose();
+                  }}
+                >
+                  <MenuBook sx={{ mr: 1.5, fontSize: 20, color: "#666" }} />
+                  My Recipes
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    navigate("/new-recipe");
+                    handleMenuClose();
+                  }}
+                >
+                  <Add sx={{ mr: 1.5, fontSize: 20, color: "#666" }} />
+                  New Recipe
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleLogout}>
+                  <Logout sx={{ mr: 1.5, fontSize: 20, color: "#9c3848" }} />
+                  <Typography sx={{ color: "#9c3848" }}>Logout</Typography>
+                </MenuItem>
+              </MuiMenu>
             </>
           )}
         </Box>
@@ -132,7 +185,7 @@ export default function Header() {
         {/* Hamburger Menu Icon - Visible on Small Screens */}
         <IconButton
           sx={{
-            display: { xs: "flex", md: "none" },
+            display: { xs: "flex", sm: "none" },
             color: "#9c3848",
           }}
           onClick={handleDrawerToggle}
@@ -210,7 +263,39 @@ export default function Header() {
                 <ListItem sx={{ mx: 1 }}>
                   <ListItemText
                     primary={user.name}
-                    primaryTypographyProps={{ sx: { color: "#666" } }}
+                    primaryTypographyProps={{ sx: { color: "#9c3848", fontWeight: 600 } }}
+                  />
+                </ListItem>
+                <ListItem
+                  component={Link}
+                  to="/my-recipes"
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    mx: 1,
+                    borderRadius: 2,
+                    "&:hover": { backgroundColor: "#f8d7da" },
+                  }}
+                >
+                  <MenuBook sx={{ mr: 1.5, color: "#666", fontSize: 20 }} />
+                  <ListItemText
+                    primary="My Recipes"
+                    primaryTypographyProps={{ sx: { color: "#444", fontWeight: 500 } }}
+                  />
+                </ListItem>
+                <ListItem
+                  component={Link}
+                  to="/new-recipe"
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    mx: 1,
+                    borderRadius: 2,
+                    "&:hover": { backgroundColor: "#f8d7da" },
+                  }}
+                >
+                  <Add sx={{ mr: 1.5, color: "#666", fontSize: 20 }} />
+                  <ListItemText
+                    primary="New Recipe"
+                    primaryTypographyProps={{ sx: { color: "#444", fontWeight: 500 } }}
                   />
                 </ListItem>
                 <ListItem
@@ -222,7 +307,7 @@ export default function Header() {
                     "&:hover": { backgroundColor: "#f8d7da" },
                   }}
                 >
-                  <Logout sx={{ mr: 1, color: "#9c3848" }} />
+                  <Logout sx={{ mr: 1.5, color: "#9c3848", fontSize: 20 }} />
                   <ListItemText
                     primary="Logout"
                     primaryTypographyProps={{ sx: { color: "#9c3848", fontWeight: 500 } }}
