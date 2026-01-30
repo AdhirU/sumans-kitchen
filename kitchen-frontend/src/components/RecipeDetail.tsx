@@ -28,7 +28,6 @@ import PageNotFound from "./PageNotFound";
 import { modifyRecipe } from "../reducers/recipeReducer";
 
 const RecipeDetail = () => {
-  const isOwner = true;
   const [isEditing, setIsEditing] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -36,13 +35,15 @@ const RecipeDetail = () => {
   const recipe = useAppSelector((state) =>
     state.recipes.find((r) => r.id === id)
   );
+  const user = useAppSelector((state) => state.auth.user);
+  const isOwner = user && recipe && user.id === recipe.user_id;
 
   if (!id || !recipe) {
     return <PageNotFound />;
   }
 
   const saveRecipe = async (newRecipe: NewRecipe) => {
-    const updatedRecipe: Recipe = { ...newRecipe, id };
+    const updatedRecipe: Recipe = { ...newRecipe, id, user_id: recipe.user_id };
     await dispatch(modifyRecipe(id, updatedRecipe));
     setIsEditing(false);
   };

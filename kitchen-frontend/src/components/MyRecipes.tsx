@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   Container,
   Grid2 as Grid,
@@ -7,12 +8,25 @@ import {
   Box,
   Chip,
 } from "@mui/material";
-import { Restaurant } from "@mui/icons-material";
-import { Link } from "react-router-dom";
-import { useAppSelector } from "../hooks";
+import { Restaurant, Public } from "@mui/icons-material";
+import { Link, Navigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { initializeMyRecipes } from "../reducers/recipeReducer";
 
-const Home = () => {
+const MyRecipes = () => {
+  const dispatch = useAppDispatch();
   const recipes = useAppSelector((state) => state.recipes);
+  const user = useAppSelector((state) => state.auth.user);
+
+  useEffect(() => {
+    if (user) {
+      dispatch(initializeMyRecipes());
+    }
+  }, [dispatch, user]);
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -25,7 +39,7 @@ const Home = () => {
             mb: 1,
           }}
         >
-          Recipes
+          My Recipes
         </Typography>
         <Typography variant="body1" sx={{ color: "#666" }}>
           {recipes.length} recipes in your collection
@@ -107,6 +121,21 @@ const Home = () => {
                         },
                       }}
                     />
+                    {recipe.is_public && (
+                      <Chip
+                        icon={<Public sx={{ fontSize: 14 }} />}
+                        label="Public"
+                        size="small"
+                        sx={{
+                          backgroundColor: "#e8f5e9",
+                          color: "#2e7d32",
+                          fontWeight: 500,
+                          "& .MuiChip-icon": {
+                            color: "#2e7d32",
+                          },
+                        }}
+                      />
+                    )}
                   </Box>
                 </Box>
               </CardContent>
@@ -118,4 +147,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default MyRecipes;

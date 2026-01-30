@@ -25,10 +25,29 @@ const recipeSlice = createSlice({
 
 export const { setRecipes, appendRecipe, updateRecipe } = recipeSlice.actions;
 
-export const initializeRecipes = () => {
+export const deleteRecipe = (id: string) => {
+  return async (dispatch: AppDispatch, getState: () => { recipes: Recipe[] }) => {
+    await recipesService.remove(id);
+    const recipes = getState().recipes.filter((r) => r.id !== id);
+    dispatch(setRecipes(recipes));
+  };
+};
+
+export const initializePublicRecipes = () => {
   return async (dispatch: AppDispatch) => {
     try {
-      const recipes = await recipesService.getAll();
+      const recipes = await recipesService.getPublic();
+      dispatch(setRecipes(recipes));
+    } catch {
+      console.log("ERROR!!");
+    }
+  };
+};
+
+export const initializeMyRecipes = () => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const recipes = await recipesService.getMine();
       dispatch(setRecipes(recipes));
     } catch {
       console.log("ERROR!!");

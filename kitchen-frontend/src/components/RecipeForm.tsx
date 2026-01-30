@@ -9,8 +9,10 @@ import {
   IconButton,
   Divider,
   Avatar,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
-import { Add, Delete, Restaurant, CheckCircleOutline } from "@mui/icons-material";
+import { Add, Delete, Restaurant, CheckCircleOutline, Public } from "@mui/icons-material";
 import { NewRecipe } from "../types";
 
 interface Props {
@@ -100,10 +102,40 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
           value={editedRecipe.description}
           onChange={handleEditChange}
           sx={{
+            mb: 2,
             "& .MuiOutlinedInput-root": {
               borderRadius: 2,
             },
           }}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={editedRecipe.is_public}
+              onChange={(e) =>
+                setEditedRecipe((prev) => ({
+                  ...prev,
+                  is_public: e.target.checked,
+                }))
+              }
+              sx={{
+                "& .MuiSwitch-switchBase.Mui-checked": {
+                  color: "#9c3848",
+                },
+                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                  backgroundColor: "#9c3848",
+                },
+              }}
+            />
+          }
+          label={
+            <Box display="flex" alignItems="center" gap={1}>
+              <Public sx={{ fontSize: 20, color: "#666" }} />
+              <Typography sx={{ color: "#666" }}>
+                Make this recipe public
+              </Typography>
+            </Box>
+          }
         />
       </Paper>
 

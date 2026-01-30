@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -13,20 +13,25 @@ import {
   Button,
   Divider,
 } from "@mui/material";
-import { Menu, Close, Restaurant } from "@mui/icons-material";
-
-const pages = [
-  { name: "All Recipes", path: "/" },
-  { name: "My Recipes", path: "/my-recipes" },
-  { name: "New Recipe", path: "/new-recipe" },
-];
+import { Menu, Close, Restaurant, Logout } from "@mui/icons-material";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { logout } from "../reducers/authReducer";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
+    setMobileOpen(false);
   };
 
   const isActive = (path: string) => {
@@ -35,6 +40,18 @@ export default function Header() {
     }
     return location.pathname.startsWith(path);
   };
+
+  const pages = user
+    ? [
+        { name: "Public Recipes", path: "/" },
+        { name: "My Recipes", path: "/my-recipes" },
+        { name: "New Recipe", path: "/new-recipe" },
+      ]
+    : [
+        { name: "Public Recipes", path: "/" },
+        { name: "Login", path: "/login" },
+        { name: "Register", path: "/register" },
+      ];
 
   return (
     <AppBar
@@ -75,7 +92,7 @@ export default function Header() {
         </Link>
 
         {/* Navigation Links - Hidden on Small Screens */}
-        <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1 }}>
+        <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1, alignItems: "center" }}>
           {pages.map((page) => (
             <Button
               component={Link}
@@ -100,6 +117,16 @@ export default function Header() {
               {page.name}
             </Button>
           ))}
+          {user && (
+            <>
+              <Typography sx={{ color: "#666", ml: 1 }}>
+                {user.name}
+              </Typography>
+              <IconButton onClick={handleLogout} sx={{ color: "#9c3848" }}>
+                <Logout />
+              </IconButton>
+            </>
+          )}
         </Box>
 
         {/* Hamburger Menu Icon - Visible on Small Screens */}
@@ -177,6 +204,32 @@ export default function Header() {
                 />
               </ListItem>
             ))}
+            {user && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <ListItem sx={{ mx: 1 }}>
+                  <ListItemText
+                    primary={user.name}
+                    primaryTypographyProps={{ sx: { color: "#666" } }}
+                  />
+                </ListItem>
+                <ListItem
+                  onClick={handleLogout}
+                  sx={{
+                    mx: 1,
+                    borderRadius: 2,
+                    cursor: "pointer",
+                    "&:hover": { backgroundColor: "#f8d7da" },
+                  }}
+                >
+                  <Logout sx={{ mr: 1, color: "#9c3848" }} />
+                  <ListItemText
+                    primary="Logout"
+                    primaryTypographyProps={{ sx: { color: "#9c3848", fontWeight: 500 } }}
+                  />
+                </ListItem>
+              </>
+            )}
           </List>
         </Drawer>
       </Toolbar>

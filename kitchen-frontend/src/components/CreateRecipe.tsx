@@ -8,8 +8,8 @@ import { NewRecipe } from "../types";
 import RecipeForm from "./RecipeForm";
 import { createRecipe } from "../reducers/recipeReducer";
 import generateService from "../services/generate";
-import { useAppDispatch } from "../hooks";
-import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
   Button,
@@ -26,9 +26,11 @@ const emptyRecipe: NewRecipe = {
   description: "",
   ingredients: [""],
   directions: [""],
+  is_public: false,
 };
 
 const CreateRecipe = () => {
+  const user = useAppSelector((state) => state.auth.user);
   const [value, setValue] = useState("text");
   const [promptText, setPromptText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,6 +39,10 @@ const CreateRecipe = () => {
   );
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
     if (newValue === "text") {
