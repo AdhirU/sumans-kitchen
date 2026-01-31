@@ -16,7 +16,11 @@ import {
   Button,
   CircularProgress,
   Container,
+  FormControl,
+  MenuItem,
   Paper,
+  Select,
+  SelectChangeEvent,
   TextField,
   Typography,
 } from '@mui/material';
@@ -56,6 +60,16 @@ const CreateRecipe = () => {
   }
 
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
+    if (newValue === 'text') {
+      setSelectedRecipe(emptyRecipe);
+    } else {
+      setSelectedRecipe(null);
+    }
+    setValue(newValue);
+  };
+
+  const handleSelectChange = (event: SelectChangeEvent) => {
+    const newValue = event.target.value;
     if (newValue === 'text') {
       setSelectedRecipe(emptyRecipe);
     } else {
@@ -142,9 +156,42 @@ const CreateRecipe = () => {
             width: '100%',
           }}
         >
+          {/* Mobile dropdown */}
+          <FormControl
+            sx={{
+              display: { xs: 'block', sm: 'none' },
+              minWidth: 200,
+            }}
+          >
+            <Select
+              value={value}
+              onChange={handleSelectChange}
+              sx={{
+                borderRadius: 2,
+                '& .MuiSelect-select': {
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                },
+              }}
+            >
+              <MenuItem value="text">
+                <Edit sx={{ fontSize: 20, mr: 1 }} /> Manual Entry
+              </MenuItem>
+              <MenuItem value="prompt">
+                <AutoAwesome sx={{ fontSize: 20, mr: 1 }} /> AI Generate
+              </MenuItem>
+              <MenuItem value="image">
+                <Image sx={{ fontSize: 20, mr: 1 }} /> From Image
+              </MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Desktop tabs */}
           <Paper
             elevation={0}
             sx={{
+              display: { xs: 'none', sm: 'block' },
               borderRadius: 3,
               border: '1px solid #e8e8e8',
               overflow: 'hidden',
