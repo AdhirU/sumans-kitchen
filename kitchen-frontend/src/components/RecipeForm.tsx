@@ -20,7 +20,25 @@ import {
   Public,
   CameraAlt,
   Upload,
+  DragIndicator,
 } from '@mui/icons-material';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { NewRecipe } from '../types';
 
 interface Props {
@@ -29,6 +47,186 @@ interface Props {
 }
 
 type arrayFields = 'ingredients' | 'directions';
+
+interface SortableIngredientProps {
+  id: string;
+  index: number;
+  value: string;
+  onChange: (value: string) => void;
+  onRemove: () => void;
+}
+
+const SortableIngredient = ({
+  id,
+  index,
+  value,
+  onChange,
+  onRemove,
+}: SortableIngredientProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <Box
+      ref={setNodeRef}
+      style={style}
+      display="flex"
+      alignItems="center"
+      sx={{ mb: 2 }}
+    >
+      <IconButton
+        {...attributes}
+        {...listeners}
+        sx={{
+          cursor: 'grab',
+          color: '#999',
+          '&:hover': { color: '#666' },
+          '&:active': { cursor: 'grabbing' },
+        }}
+      >
+        <DragIndicator fontSize="small" />
+      </IconButton>
+      <Box
+        sx={{
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          backgroundColor: '#9c3848',
+          mr: 2,
+          flexShrink: 0,
+        }}
+      />
+      <TextField
+        fullWidth
+        size="small"
+        placeholder={`Ingredient ${index + 1}`}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 2,
+            backgroundColor: '#fafafa',
+          },
+        }}
+      />
+      <IconButton
+        onClick={onRemove}
+        sx={{
+          ml: 1,
+          color: '#999',
+          '&:hover': { color: '#d32f2f' },
+        }}
+      >
+        <Delete fontSize="small" />
+      </IconButton>
+    </Box>
+  );
+};
+
+interface SortableDirectionProps {
+  id: string;
+  index: number;
+  value: string;
+  onChange: (value: string) => void;
+  onRemove: () => void;
+}
+
+const SortableDirection = ({
+  id,
+  index,
+  value,
+  onChange,
+  onRemove,
+}: SortableDirectionProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <Box
+      ref={setNodeRef}
+      style={style}
+      display="flex"
+      alignItems="flex-start"
+      sx={{ mb: 2 }}
+    >
+      <IconButton
+        {...attributes}
+        {...listeners}
+        sx={{
+          cursor: 'grab',
+          color: '#999',
+          mt: 0.25,
+          '&:hover': { color: '#666' },
+          '&:active': { cursor: 'grabbing' },
+        }}
+      >
+        <DragIndicator fontSize="small" />
+      </IconButton>
+      <Avatar
+        sx={{
+          width: 28,
+          height: 28,
+          backgroundColor: '#9c3848',
+          fontSize: '0.85rem',
+          fontWeight: 600,
+          mr: 2,
+          mt: 0.5,
+          flexShrink: 0,
+        }}
+      >
+        {index + 1}
+      </Avatar>
+      <TextField
+        fullWidth
+        multiline
+        size="small"
+        placeholder={`Step ${index + 1}`}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 2,
+            backgroundColor: '#fafafa',
+          },
+        }}
+      />
+      <IconButton
+        onClick={onRemove}
+        sx={{
+          ml: 1,
+          color: '#999',
+          '&:hover': { color: '#d32f2f' },
+        }}
+      >
+        <Delete fontSize="small" />
+      </IconButton>
+    </Box>
+  );
+};
 
 const RecipeForm = ({ recipe, onSave }: Props) => {
   const [editedRecipe, setEditedRecipe] = useState({ ...recipe });
@@ -39,6 +237,13 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const handleSave = async () => {
     setLoading(true);
@@ -94,6 +299,20 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
       const updatedArray = prev[field].filter((_, i) => i !== index);
       return { ...prev, [field]: updatedArray };
     });
+  };
+
+  const handleDragEnd = (field: arrayFields) => (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setEditedRecipe((prev) => {
+        const oldIndex = prev[field].findIndex((_, i) => `${field}-${i}` === active.id);
+        const newIndex = prev[field].findIndex((_, i) => `${field}-${i}` === over.id);
+        return {
+          ...prev,
+          [field]: arrayMove(prev[field], oldIndex, newIndex),
+        };
+      });
+    }
   };
 
   return (
@@ -278,45 +497,27 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
         </Box>
         <Divider sx={{ mb: 3 }} />
 
-        {editedRecipe.ingredients.map((ingredient, index) => (
-          <Box key={index} display="flex" alignItems="center" sx={{ mb: 2 }}>
-            <Box
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: '#9c3848',
-                mr: 2,
-                flexShrink: 0,
-              }}
-            />
-            <TextField
-              fullWidth
-              size="small"
-              placeholder={`Ingredient ${index + 1}`}
-              value={ingredient}
-              onChange={(e) =>
-                handleArrayChange(index, 'ingredients', e.target.value)
-              }
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  backgroundColor: '#fafafa',
-                },
-              }}
-            />
-            <IconButton
-              onClick={() => handleRemoveItem(index, 'ingredients')}
-              sx={{
-                ml: 1,
-                color: '#999',
-                '&:hover': { color: '#d32f2f' },
-              }}
-            >
-              <Delete fontSize="small" />
-            </IconButton>
-          </Box>
-        ))}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd('ingredients')}
+        >
+          <SortableContext
+            items={editedRecipe.ingredients.map((_, i) => `ingredients-${i}`)}
+            strategy={verticalListSortingStrategy}
+          >
+            {editedRecipe.ingredients.map((ingredient, index) => (
+              <SortableIngredient
+                key={`ingredients-${index}`}
+                id={`ingredients-${index}`}
+                index={index}
+                value={ingredient}
+                onChange={(value) => handleArrayChange(index, 'ingredients', value)}
+                onRemove={() => handleRemoveItem(index, 'ingredients')}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
 
         <Button
           startIcon={<Add />}
@@ -355,55 +556,27 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
         </Box>
         <Divider sx={{ mb: 3 }} />
 
-        {editedRecipe.directions.map((step, index) => (
-          <Box
-            key={index}
-            display="flex"
-            alignItems="flex-start"
-            sx={{ mb: 2 }}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd('directions')}
+        >
+          <SortableContext
+            items={editedRecipe.directions.map((_, i) => `directions-${i}`)}
+            strategy={verticalListSortingStrategy}
           >
-            <Avatar
-              sx={{
-                width: 28,
-                height: 28,
-                backgroundColor: '#9c3848',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                mr: 2,
-                mt: 0.5,
-                flexShrink: 0,
-              }}
-            >
-              {index + 1}
-            </Avatar>
-            <TextField
-              fullWidth
-              multiline
-              size="small"
-              placeholder={`Step ${index + 1}`}
-              value={step}
-              onChange={(e) =>
-                handleArrayChange(index, 'directions', e.target.value)
-              }
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  backgroundColor: '#fafafa',
-                },
-              }}
-            />
-            <IconButton
-              onClick={() => handleRemoveItem(index, 'directions')}
-              sx={{
-                ml: 1,
-                color: '#999',
-                '&:hover': { color: '#d32f2f' },
-              }}
-            >
-              <Delete fontSize="small" />
-            </IconButton>
-          </Box>
-        ))}
+            {editedRecipe.directions.map((step, index) => (
+              <SortableDirection
+                key={`directions-${index}`}
+                id={`directions-${index}`}
+                index={index}
+                value={step}
+                onChange={(value) => handleArrayChange(index, 'directions', value)}
+                onRemove={() => handleRemoveItem(index, 'directions')}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
 
         <Button
           startIcon={<Add />}
