@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Container, Grid2 as Grid, Typography, Box } from "@mui/material";
+import { Container, Grid2 as Grid, Typography, Box, CircularProgress } from "@mui/material";
 import { Navigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { initializeMyRecipes } from "../reducers/recipeReducer";
@@ -9,12 +9,23 @@ const MyRecipes = () => {
   const dispatch = useAppDispatch();
   const recipes = useAppSelector((state) => state.recipes);
   const user = useAppSelector((state) => state.auth.user);
+  const token = useAppSelector((state) => state.auth.token);
 
   useEffect(() => {
     if (user) {
       dispatch(initializeMyRecipes());
     }
   }, [dispatch, user]);
+
+  // Wait for auth to load before deciding to redirect
+  // If we have a token but no user yet, the user is still being loaded
+  if (token && !user) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <CircularProgress sx={{ color: '#9c3848' }} />
+      </Box>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;

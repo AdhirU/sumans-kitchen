@@ -42,6 +42,7 @@ const emptyRecipe: NewRecipe = {
 
 const CreateRecipe = () => {
   const user = useAppSelector((state) => state.auth.user);
+  const token = useAppSelector((state) => state.auth.token);
   const [value, setValue] = useState('text');
   const [promptText, setPromptText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,6 +55,16 @@ const CreateRecipe = () => {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  // Wait for auth to load before deciding to redirect
+  // If we have a token but no user yet, the user is still being loaded
+  if (token && !user) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <CircularProgress sx={{ color: '#9c3848' }} />
+      </Box>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;
