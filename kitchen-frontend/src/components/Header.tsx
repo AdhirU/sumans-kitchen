@@ -23,6 +23,7 @@ import {
   Add,
   MenuBook,
   KeyboardArrowDown,
+  Public,
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { logout } from '../reducers/authReducer';
@@ -66,9 +67,8 @@ export default function Header() {
   };
 
   const pages = isLoggedIn
-    ? [{ name: 'Recipes', path: '/' }]
+    ? []
     : [
-        { name: 'Recipes', path: '/' },
         { name: 'Login', path: '/login' },
         { name: 'Register', path: '/register' },
       ];
@@ -172,6 +172,15 @@ export default function Header() {
                   sx: { mt: 1, minWidth: 180 },
                 }}
               >
+                <MenuItem
+                  onClick={() => {
+                    navigate('/');
+                    handleMenuClose();
+                  }}
+                >
+                  <Public sx={{ mr: 1.5, fontSize: 20, color: '#666' }} />
+                  Public Recipes
+                </MenuItem>
                 <MenuItem
                   onClick={() => {
                     navigate('/my-recipes');
@@ -288,11 +297,31 @@ export default function Header() {
                 </ListItem>
                 <ListItem
                   component={Link}
+                  to="/"
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    mx: 1,
+                    borderRadius: 2,
+                    backgroundColor: isActive('/') ? '#f8d7da' : 'transparent',
+                    '&:hover': { backgroundColor: '#f8d7da' },
+                  }}
+                >
+                  <Public sx={{ mr: 1.5, color: '#666', fontSize: 20 }} />
+                  <ListItemText
+                    primary="Public Recipes"
+                    primaryTypographyProps={{
+                      sx: { color: '#444', fontWeight: 500 },
+                    }}
+                  />
+                </ListItem>
+                <ListItem
+                  component={Link}
                   to="/my-recipes"
                   onClick={handleDrawerToggle}
                   sx={{
                     mx: 1,
                     borderRadius: 2,
+                    backgroundColor: isActive('/my-recipes') ? '#f8d7da' : 'transparent',
                     '&:hover': { backgroundColor: '#f8d7da' },
                   }}
                 >
@@ -311,6 +340,7 @@ export default function Header() {
                   sx={{
                     mx: 1,
                     borderRadius: 2,
+                    backgroundColor: isActive('/new-recipe') ? '#f8d7da' : 'transparent',
                     '&:hover': { backgroundColor: '#f8d7da' },
                   }}
                 >
