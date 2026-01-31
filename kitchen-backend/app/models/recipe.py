@@ -14,6 +14,7 @@ class RecipeCreate(RecipeBase):
     """Schema for creating a new recipe. No id field since MongoDB generates it."""
 
     is_public: bool = False
+    image_url: str | None = None
 
 
 class RecipeResponse(RecipeBase):
@@ -22,6 +23,7 @@ class RecipeResponse(RecipeBase):
     id: str
     is_public: bool
     user_id: str
+    image_url: str | None = None
 
 
 class RecipeUpdate(RecipeBase):
@@ -29,6 +31,7 @@ class RecipeUpdate(RecipeBase):
 
     id: str
     is_public: bool
+    image_url: str | None = None
 
 
 class GenerateFromPromptRequest(BaseModel):
@@ -50,4 +53,5 @@ def recipe_from_mongo(doc: dict) -> RecipeResponse:
         directions=doc.get("directions", []),
         is_public=doc.get("is_public", False),
         user_id=doc["user_id"],
+        image_url=doc.get("image_url"),
     )

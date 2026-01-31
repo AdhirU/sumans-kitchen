@@ -61,6 +61,7 @@ class RecipeService:
             "ingredients": recipe.ingredients,
             "directions": recipe.directions,
             "is_public": recipe.is_public,
+            "image_url": recipe.image_url,
         }
 
         result = await self.collection.find_one_and_update(
@@ -82,3 +83,22 @@ class RecipeService:
 
         result = await self.collection.delete_one({"_id": object_id})
         return result.deleted_count > 0
+
+    async def update_image(
+        self, recipe_id: str, image_url: str | None
+    ) -> RecipeResponse | None:
+        """Update a recipe's image URL. Returns None if not found or invalid ID."""
+        try:
+            object_id = ObjectId(recipe_id)
+        except InvalidId:
+            return None
+
+        result = await self.collection.find_one_and_update(
+            {"_id": object_id},
+            {"$set": {"image_url": image_url}},
+            return_document=True,
+        )
+
+        if result:
+            return recipe_from_mongo(result)
+        return None

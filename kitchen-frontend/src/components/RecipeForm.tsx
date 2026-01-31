@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useRef } from 'react';
 import {
   Container,
   Paper,
@@ -11,25 +11,58 @@ import {
   Avatar,
   FormControlLabel,
   Switch,
-} from "@mui/material";
-import { Add, Delete, Restaurant, CheckCircleOutline, Public } from "@mui/icons-material";
-import { NewRecipe } from "../types";
+} from '@mui/material';
+import {
+  Add,
+  Delete,
+  Restaurant,
+  CheckCircleOutline,
+  Public,
+  CameraAlt,
+  Upload,
+} from '@mui/icons-material';
+import { NewRecipe } from '../types';
 
 interface Props {
   recipe: NewRecipe;
-  onSave: (newRecipe: NewRecipe) => Promise<void>;
+  onSave: (newRecipe: NewRecipe, imageFile?: File) => Promise<void>;
 }
 
-type arrayFields = "ingredients" | "directions";
+type arrayFields = 'ingredients' | 'directions';
 
 const RecipeForm = ({ recipe, onSave }: Props) => {
   const [editedRecipe, setEditedRecipe] = useState({ ...recipe });
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    recipe.image_url || null,
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
     setLoading(true);
-    await onSave(editedRecipe);
+    await onSave(editedRecipe, imageFile || undefined);
     setLoading(false);
+  };
+
+  const handleImageSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
   const handleEditChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +73,7 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
   const handleArrayChange = (
     index: number,
     field: arrayFields,
-    value: string
+    value: string,
   ) => {
     setEditedRecipe((prev) => {
       const updatedArray = [...prev[field]];
@@ -52,7 +85,7 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
   const handleAddItem = (field: arrayFields) => {
     setEditedRecipe((prev) => ({
       ...prev,
-      [field]: [...prev[field], ""],
+      [field]: [...prev[field], ''],
     }));
   };
 
@@ -72,8 +105,8 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
           p: { xs: 3, sm: 4 },
           mb: 3,
           borderRadius: 3,
-          background: "linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)",
-          border: "1px solid #f0e0e0",
+          background: 'linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)',
+          border: '1px solid #f0e0e0',
         }}
       >
         <TextField
@@ -85,9 +118,9 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
           onChange={handleEditChange}
           sx={{
             mb: 3,
-            "& .MuiOutlinedInput-root": {
+            '& .MuiOutlinedInput-root': {
               borderRadius: 2,
-              fontSize: "1.25rem",
+              fontSize: '1.25rem',
               fontWeight: 600,
             },
           }}
@@ -102,12 +135,100 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
           value={editedRecipe.description}
           onChange={handleEditChange}
           sx={{
-            mb: 2,
-            "& .MuiOutlinedInput-root": {
+            mb: 3,
+            '& .MuiOutlinedInput-root': {
               borderRadius: 2,
             },
           }}
         />
+
+        {/* Image Upload Section */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, color: '#666' }}>
+            Recipe Image (optional)
+          </Typography>
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            ref={cameraInputRef}
+            onChange={handleImageSelect}
+            style={{ display: 'none' }}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageSelect}
+            style={{ display: 'none' }}
+          />
+          {!imagePreview ? (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="outlined"
+                startIcon={<CameraAlt />}
+                onClick={() => cameraInputRef.current?.click()}
+                sx={{
+                  display: { xs: 'inline-flex', md: 'none' },
+                  borderColor: '#ccc',
+                  color: '#666',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  '&:hover': {
+                    borderColor: '#9c3848',
+                    backgroundColor: 'rgba(156, 56, 72, 0.04)',
+                  },
+                }}
+              >
+                Take Photo
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<Upload />}
+                onClick={() => fileInputRef.current?.click()}
+                sx={{
+                  borderColor: '#ccc',
+                  color: '#666',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  '&:hover': {
+                    borderColor: '#9c3848',
+                    backgroundColor: 'rgba(156, 56, 72, 0.04)',
+                  },
+                }}
+              >
+                Upload Image
+              </Button>
+            </Box>
+          ) : (
+            <Box>
+              <Box
+                component="img"
+                src={imagePreview}
+                alt="Recipe preview"
+                sx={{
+                  maxWidth: '100%',
+                  maxHeight: 200,
+                  borderRadius: 2,
+                  mb: 1,
+                  display: 'block',
+                }}
+              />
+              <Button
+                size="small"
+                onClick={clearImage}
+                sx={{
+                  color: '#666',
+                  textTransform: 'none',
+                  '&:hover': { color: '#d32f2f' },
+                }}
+              >
+                Remove Image
+              </Button>
+            </Box>
+          )}
+        </Box>
+
         <FormControlLabel
           control={
             <Switch
@@ -119,19 +240,19 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
                 }))
               }
               sx={{
-                "& .MuiSwitch-switchBase.Mui-checked": {
-                  color: "#9c3848",
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: '#9c3848',
                 },
-                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                  backgroundColor: "#9c3848",
+                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                  backgroundColor: '#9c3848',
                 },
               }}
             />
           }
           label={
             <Box display="flex" alignItems="center" gap={1}>
-              <Public sx={{ fontSize: 20, color: "#666" }} />
-              <Typography sx={{ color: "#666" }}>
+              <Public sx={{ fontSize: 20, color: '#666' }} />
+              <Typography sx={{ color: '#666' }}>
                 Make this recipe public
               </Typography>
             </Box>
@@ -146,30 +267,25 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
           p: { xs: 3, sm: 4 },
           mb: 3,
           borderRadius: 3,
-          border: "1px solid #e8e8e8",
+          border: '1px solid #e8e8e8',
         }}
       >
         <Box display="flex" alignItems="center" mb={2}>
-          <Restaurant sx={{ color: "#9c3848", mr: 1.5, fontSize: 28 }} />
-          <Typography variant="h5" sx={{ fontWeight: 600, color: "#2d2d2d" }}>
+          <Restaurant sx={{ color: '#9c3848', mr: 1.5, fontSize: 28 }} />
+          <Typography variant="h5" sx={{ fontWeight: 600, color: '#2d2d2d' }}>
             Ingredients
           </Typography>
         </Box>
         <Divider sx={{ mb: 3 }} />
 
         {editedRecipe.ingredients.map((ingredient, index) => (
-          <Box
-            key={index}
-            display="flex"
-            alignItems="center"
-            sx={{ mb: 2 }}
-          >
+          <Box key={index} display="flex" alignItems="center" sx={{ mb: 2 }}>
             <Box
               sx={{
                 width: 8,
                 height: 8,
-                borderRadius: "50%",
-                backgroundColor: "#9c3848",
+                borderRadius: '50%',
+                backgroundColor: '#9c3848',
                 mr: 2,
                 flexShrink: 0,
               }}
@@ -180,21 +296,21 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
               placeholder={`Ingredient ${index + 1}`}
               value={ingredient}
               onChange={(e) =>
-                handleArrayChange(index, "ingredients", e.target.value)
+                handleArrayChange(index, 'ingredients', e.target.value)
               }
               sx={{
-                "& .MuiOutlinedInput-root": {
+                '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
-                  backgroundColor: "#fafafa",
+                  backgroundColor: '#fafafa',
                 },
               }}
             />
             <IconButton
-              onClick={() => handleRemoveItem(index, "ingredients")}
+              onClick={() => handleRemoveItem(index, 'ingredients')}
               sx={{
                 ml: 1,
-                color: "#999",
-                "&:hover": { color: "#d32f2f" },
+                color: '#999',
+                '&:hover': { color: '#d32f2f' },
               }}
             >
               <Delete fontSize="small" />
@@ -204,14 +320,14 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
 
         <Button
           startIcon={<Add />}
-          onClick={() => handleAddItem("ingredients")}
+          onClick={() => handleAddItem('ingredients')}
           sx={{
             mt: 1,
-            color: "#9c3848",
-            textTransform: "none",
+            color: '#9c3848',
+            textTransform: 'none',
             fontWeight: 500,
-            "&:hover": {
-              backgroundColor: "#f8d7da",
+            '&:hover': {
+              backgroundColor: '#f8d7da',
             },
           }}
         >
@@ -226,12 +342,14 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
           p: { xs: 3, sm: 4 },
           mb: 3,
           borderRadius: 3,
-          border: "1px solid #e8e8e8",
+          border: '1px solid #e8e8e8',
         }}
       >
         <Box display="flex" alignItems="center" mb={2}>
-          <CheckCircleOutline sx={{ color: "#9c3848", mr: 1.5, fontSize: 28 }} />
-          <Typography variant="h5" sx={{ fontWeight: 600, color: "#2d2d2d" }}>
+          <CheckCircleOutline
+            sx={{ color: '#9c3848', mr: 1.5, fontSize: 28 }}
+          />
+          <Typography variant="h5" sx={{ fontWeight: 600, color: '#2d2d2d' }}>
             Directions
           </Typography>
         </Box>
@@ -248,8 +366,8 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
               sx={{
                 width: 28,
                 height: 28,
-                backgroundColor: "#9c3848",
-                fontSize: "0.85rem",
+                backgroundColor: '#9c3848',
+                fontSize: '0.85rem',
                 fontWeight: 600,
                 mr: 2,
                 mt: 0.5,
@@ -265,21 +383,21 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
               placeholder={`Step ${index + 1}`}
               value={step}
               onChange={(e) =>
-                handleArrayChange(index, "directions", e.target.value)
+                handleArrayChange(index, 'directions', e.target.value)
               }
               sx={{
-                "& .MuiOutlinedInput-root": {
+                '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
-                  backgroundColor: "#fafafa",
+                  backgroundColor: '#fafafa',
                 },
               }}
             />
             <IconButton
-              onClick={() => handleRemoveItem(index, "directions")}
+              onClick={() => handleRemoveItem(index, 'directions')}
               sx={{
                 ml: 1,
-                color: "#999",
-                "&:hover": { color: "#d32f2f" },
+                color: '#999',
+                '&:hover': { color: '#d32f2f' },
               }}
             >
               <Delete fontSize="small" />
@@ -289,14 +407,14 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
 
         <Button
           startIcon={<Add />}
-          onClick={() => handleAddItem("directions")}
+          onClick={() => handleAddItem('directions')}
           sx={{
             mt: 1,
-            color: "#9c3848",
-            textTransform: "none",
+            color: '#9c3848',
+            textTransform: 'none',
             fontWeight: 500,
-            "&:hover": {
-              backgroundColor: "#f8d7da",
+            '&:hover': {
+              backgroundColor: '#f8d7da',
             },
           }}
         >
@@ -314,21 +432,21 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
           sx={{
             px: 6,
             py: 1.5,
-            background: "#9c3848",
-            color: "#fff",
+            background: '#9c3848',
+            color: '#fff',
             borderRadius: 2,
-            textTransform: "none",
+            textTransform: 'none',
             fontWeight: 600,
-            fontSize: "1rem",
-            "&:hover": {
-              background: "#7d2d3a",
+            fontSize: '1rem',
+            '&:hover': {
+              background: '#7d2d3a',
             },
-            "&:disabled": {
-              background: "#ccc",
+            '&:disabled': {
+              background: '#ccc',
             },
           }}
         >
-          {loading ? "Saving..." : "Save Recipe"}
+          {loading ? 'Saving...' : 'Save Recipe'}
         </Button>
       </Box>
     </Container>

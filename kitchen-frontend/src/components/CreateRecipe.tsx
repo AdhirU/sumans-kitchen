@@ -8,6 +8,7 @@ import { NewRecipe } from '../types';
 import RecipeForm from './RecipeForm';
 import { createRecipe } from '../reducers/recipeReducer';
 import generateService from '../services/generate';
+import recipeService from '../services/recipes';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useRef, useState } from 'react';
@@ -102,9 +103,16 @@ const CreateRecipe = () => {
     if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
-  const saveRecipe = async (newRecipe: NewRecipe) => {
+  const saveRecipe = async (newRecipe: NewRecipe, imageFile?: File) => {
     const recipeId = await dispatch(createRecipe(newRecipe));
     if (recipeId) {
+      if (imageFile) {
+        try {
+          await recipeService.uploadImage(recipeId, imageFile);
+        } catch (error) {
+          console.error('Failed to upload image:', error);
+        }
+      }
       navigate(`/recipe/${recipeId}`);
     }
   };

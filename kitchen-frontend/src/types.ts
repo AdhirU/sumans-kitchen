@@ -12,6 +12,7 @@ export interface Recipe {
   directions: string[];
   is_public: boolean;
   user_id: string;
+  image_url?: string;
 }
 
 export type NewRecipe = Omit<Recipe, "id" | "user_id">;

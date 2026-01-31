@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.database import get_database
 from app.models.recipe import RecipeCreate, RecipeResponse, RecipeUpdate
 from app.services.auth_service import get_current_user, get_current_user_optional
 from app.services.recipe_service import RecipeService
+from app.services.storage_service import StorageService, get_storage_service
 
 router = APIRouter(prefix="/api/recipes", tags=["recipes"])
 
@@ -105,3 +106,48 @@ async def delete_recipe(
             detail="You don't own this recipe",
         )
     await service.delete_by_id(recipe_id)
+
+
+@router.post("/{recipe_id}/image", response_model=RecipeResponse)
+async def upload_recipe_image(
+    recipe_id: str,
+    image: UploadFile = File(...),
+    user_id: str = Depends(get_current_user),
+    service: RecipeService = Depends(get_recipe_service),
+    storage: StorageService = Depends(get_storage_service),
+) -> RecipeResponse:
+    """Upload an image for a recipe. Requires authentication and ownership."""
+    if not image.content_type or not image.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File must be an image",
+        )
+
+    existing = await service.find_by_id(recipe_id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Recipe not found",
+        )
+    if existing.user_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't own this recipe",
+        )
+
+    if not storage.is_configured():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Image storage is not configured",
+        )
+
+    # Delete old image if exists
+    if existing.image_url:
+        storage.delete_image(existing.image_url)
+
+    # Upload new image
+    image_data = await image.read()
+    image_url = storage.upload_image(image_data, image.content_type)
+
+    # Update recipe with new image URL
+    return await service.update_image(recipe_id, image_url)

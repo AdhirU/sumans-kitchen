@@ -26,6 +26,7 @@ import { useAppDispatch, useAppSelector } from "../hooks";
 import { NewRecipe, Recipe } from "../types";
 import PageNotFound from "./PageNotFound";
 import { modifyRecipe } from "../reducers/recipeReducer";
+import recipeService from "../services/recipes";
 
 const RecipeDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -42,7 +43,15 @@ const RecipeDetail = () => {
     return <PageNotFound />;
   }
 
-  const saveRecipe = async (newRecipe: NewRecipe) => {
+  const saveRecipe = async (newRecipe: NewRecipe, imageFile?: File) => {
+    if (imageFile) {
+      try {
+        const updated = await recipeService.uploadImage(id, imageFile);
+        newRecipe.image_url = updated.image_url;
+      } catch (error) {
+        console.error("Failed to upload image:", error);
+      }
+    }
     const updatedRecipe: Recipe = { ...newRecipe, id, user_id: recipe.user_id };
     await dispatch(modifyRecipe(id, updatedRecipe));
     setIsEditing(false);
@@ -90,6 +99,20 @@ const RecipeDetail = () => {
             >
               {recipe.description}
             </Typography>
+            {recipe.image_url && (
+              <Box
+                component="img"
+                src={recipe.image_url}
+                alt={recipe.title}
+                sx={{
+                  mt: 3,
+                  maxWidth: "100%",
+                  maxHeight: 400,
+                  borderRadius: 2,
+                  display: "block",
+                }}
+              />
+            )}
           </Box>
           {isOwner && (
             <Box sx={{ ml: 2 }}>

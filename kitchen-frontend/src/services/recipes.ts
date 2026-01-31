@@ -35,4 +35,22 @@ const remove = async (id: string) => {
   await axios.delete(`${baseUrl}/${id}`, getAuthConfig());
 };
 
-export default { getPublic, getMine, getById, create, update, remove };
+const uploadImage = async (recipeId: string, imageFile: File) => {
+  const formData = new FormData();
+  formData.append("image", imageFile);
+  const config = {
+    ...getAuthConfig(),
+    headers: {
+      ...getAuthConfig().headers,
+      "Content-Type": "multipart/form-data",
+    },
+  };
+  const response = await axios.post<Recipe>(
+    `${baseUrl}/${recipeId}/image`,
+    formData,
+    config
+  );
+  return response.data;
+};
+
+export default { getPublic, getMine, getById, create, update, remove, uploadImage };

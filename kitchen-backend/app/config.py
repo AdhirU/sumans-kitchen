@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     # Google OAuth settings
     google_client_id: str | None = None
 
+    # Google Cloud Storage settings
+    gcs_bucket_name: str | None = None
+    gcs_credentials_file: str | None = None  # Path to JSON file (local dev)
+    gcs_credentials_json: str | None = None  # JSON string (production)
+
     # CORS settings
     cors_origins: list[str] = ["http://localhost:5173"]
 
