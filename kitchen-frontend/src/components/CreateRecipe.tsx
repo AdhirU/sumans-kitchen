@@ -113,7 +113,7 @@ const CreateRecipe = () => {
           console.error('Failed to upload image:', error);
         }
       }
-      navigate(`/recipe/${recipeId}`);
+      navigate('/my-recipes');
     }
   };
 

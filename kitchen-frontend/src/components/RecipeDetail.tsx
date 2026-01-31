@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -13,6 +13,7 @@ import {
   ListItemIcon,
   ListItemText,
   Avatar,
+  CircularProgress,
 } from "@mui/material";
 import {
   EditOutlined,
@@ -25,11 +26,13 @@ import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { NewRecipe, Recipe } from "../types";
 import PageNotFound from "./PageNotFound";
-import { modifyRecipe } from "../reducers/recipeReducer";
+import { modifyRecipe, appendRecipe } from "../reducers/recipeReducer";
 import recipeService from "../services/recipes";
 
 const RecipeDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
   const dispatch = useAppDispatch();
 
   const id = useParams().id;
@@ -39,8 +42,39 @@ const RecipeDetail = () => {
   const user = useAppSelector((state) => state.auth.user);
   const isOwner = user && recipe && user.id === recipe.user_id;
 
-  if (!id || !recipe) {
+  useEffect(() => {
+    if (!id || recipe) return;
+
+    const fetchRecipe = async () => {
+      setLoading(true);
+      try {
+        const fetchedRecipe = await recipeService.getById(id);
+        dispatch(appendRecipe(fetchedRecipe));
+      } catch {
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipe();
+  }, [id, recipe, dispatch]);
+
+  if (!id || notFound) {
     return <PageNotFound />;
+  }
+
+  if (loading || !recipe) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="50vh"
+      >
+        <CircularProgress sx={{ color: "#9c3848" }} />
+      </Box>
+    );
   }
 
   const saveRecipe = async (newRecipe: NewRecipe, imageFile?: File) => {
