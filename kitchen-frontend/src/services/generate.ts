@@ -10,4 +10,13 @@ const fromPrompt = async (promptText: string) => {
   return res.data;
 };
 
-export default { fromPrompt };
+const fromImage = async (imageFile: File) => {
+  const formData = new FormData();
+  formData.append("image", imageFile);
+  const res = await axios.post<NewRecipe>(`${baseUrl}/from-image`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export default { fromPrompt, fromImage };

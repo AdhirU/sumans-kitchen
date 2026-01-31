@@ -1,16 +1,16 @@
-import Box from "@mui/material/Box";
-import Tab from "@mui/material/Tab";
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
+import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
 
-import { NewRecipe } from "../types";
-import RecipeForm from "./RecipeForm";
-import { createRecipe } from "../reducers/recipeReducer";
-import generateService from "../services/generate";
-import { useAppDispatch, useAppSelector } from "../hooks";
-import { Navigate, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { NewRecipe } from '../types';
+import RecipeForm from './RecipeForm';
+import { createRecipe } from '../reducers/recipeReducer';
+import generateService from '../services/generate';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useRef, useState } from 'react';
 import {
   Button,
   CircularProgress,
@@ -18,25 +18,35 @@ import {
   Paper,
   TextField,
   Typography,
-} from "@mui/material";
-import { AutoAwesome, Edit, Image } from "@mui/icons-material";
+} from '@mui/material';
+import {
+  AutoAwesome,
+  CameraAlt,
+  Edit,
+  Image,
+  Upload,
+} from '@mui/icons-material';
 
 const emptyRecipe: NewRecipe = {
-  title: "",
-  description: "",
-  ingredients: [""],
-  directions: [""],
+  title: '',
+  description: '',
+  ingredients: [''],
+  directions: [''],
   is_public: false,
 };
 
 const CreateRecipe = () => {
   const user = useAppSelector((state) => state.auth.user);
-  const [value, setValue] = useState("text");
-  const [promptText, setPromptText] = useState("");
+  const [value, setValue] = useState('text');
+  const [promptText, setPromptText] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<NewRecipe | null>(
-    emptyRecipe
+    emptyRecipe,
   );
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -45,7 +55,7 @@ const CreateRecipe = () => {
   }
 
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
-    if (newValue === "text") {
+    if (newValue === 'text') {
       setSelectedRecipe(emptyRecipe);
     } else {
       setSelectedRecipe(null);
@@ -58,6 +68,38 @@ const CreateRecipe = () => {
     const recipe = await generateService.fromPrompt(promptText);
     setLoading(false);
     setSelectedRecipe(recipe);
+  };
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const generateFromImage = async () => {
+    if (!imageFile) return;
+    setLoading(true);
+    try {
+      const recipe = await generateService.fromImage(imageFile);
+      setSelectedRecipe(recipe);
+    } catch (error) {
+      console.error('Failed to generate recipe from image:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
   const saveRecipe = async (newRecipe: NewRecipe) => {
@@ -74,9 +116,9 @@ const CreateRecipe = () => {
           variant="h4"
           sx={{
             fontWeight: 700,
-            color: "#2d2d2d",
+            color: '#2d2d2d',
             mb: 3,
-            textAlign: "center",
+            textAlign: 'center',
           }}
         >
           Create New Recipe
@@ -86,35 +128,35 @@ const CreateRecipe = () => {
       <TabContext value={value}>
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            width: "100%",
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: '100%',
           }}
         >
           <Paper
             elevation={0}
             sx={{
               borderRadius: 3,
-              border: "1px solid #e8e8e8",
-              overflow: "hidden",
+              border: '1px solid #e8e8e8',
+              overflow: 'hidden',
             }}
           >
             <TabList
               onChange={handleChange}
               sx={{
-                "& .MuiTab-root": {
-                  textTransform: "none",
+                '& .MuiTab-root': {
+                  textTransform: 'none',
                   fontWeight: 500,
-                  fontSize: "0.95rem",
+                  fontSize: '0.95rem',
                   px: 3,
                   minHeight: 56,
                 },
-                "& .Mui-selected": {
-                  color: "#9c3848 !important",
+                '& .Mui-selected': {
+                  color: '#9c3848 !important',
                 },
-                "& .MuiTabs-indicator": {
-                  backgroundColor: "#9c3848",
+                '& .MuiTabs-indicator': {
+                  backgroundColor: '#9c3848',
                 },
               }}
             >
@@ -143,7 +185,7 @@ const CreateRecipe = () => {
             <TabPanel value="type"></TabPanel>
             <TabPanel
               sx={{
-                width: { xs: "100%", md: "600px" },
+                width: { xs: '100%', md: '600px' },
                 px: { xs: 2, md: 0 },
                 py: 4,
               }}
@@ -154,18 +196,22 @@ const CreateRecipe = () => {
                 sx={{
                   p: 3,
                   borderRadius: 3,
-                  border: "1px solid #e8e8e8",
+                  border: '1px solid #e8e8e8',
                   background:
-                    "linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)",
+                    'linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)',
                 }}
               >
                 <Typography
                   variant="body1"
-                  sx={{ mb: 2, color: "#666", textAlign: "center" }}
+                  sx={{ mb: 2, color: '#666', textAlign: 'center' }}
                 >
                   Describe the recipe you want and AI will generate it for you
                 </Typography>
-                <Box display="flex" gap={2} flexDirection={{ xs: "column", sm: "row" }}>
+                <Box
+                  display="flex"
+                  gap={2}
+                  flexDirection={{ xs: 'column', sm: 'row' }}
+                >
                   <TextField
                     size="small"
                     placeholder="e.g., Spicy Thai green curry with tofu"
@@ -173,9 +219,9 @@ const CreateRecipe = () => {
                     value={promptText}
                     onChange={({ target }) => setPromptText(target.value)}
                     sx={{
-                      "& .MuiOutlinedInput-root": {
+                      '& .MuiOutlinedInput-root': {
                         borderRadius: 2,
-                        backgroundColor: "#fff",
+                        backgroundColor: '#fff',
                       },
                     }}
                   />
@@ -185,16 +231,16 @@ const CreateRecipe = () => {
                     disabled={loading || !promptText.trim()}
                     sx={{
                       px: 4,
-                      background: "#9c3848",
+                      background: '#9c3848',
                       borderRadius: 2,
-                      textTransform: "none",
+                      textTransform: 'none',
                       fontWeight: 600,
-                      whiteSpace: "nowrap",
-                      "&:hover": {
-                        background: "#7d2d3a",
+                      whiteSpace: 'nowrap',
+                      '&:hover': {
+                        background: '#7d2d3a',
                       },
-                      "&:disabled": {
-                        background: "#ccc",
+                      '&:disabled': {
+                        background: '#ccc',
                       },
                     }}
                   >
@@ -205,7 +251,7 @@ const CreateRecipe = () => {
             </TabPanel>
             <TabPanel
               sx={{
-                width: { xs: "100%", md: "600px" },
+                width: { xs: '100%', md: '600px' },
                 px: { xs: 2, md: 0 },
                 py: 4,
               }}
@@ -214,16 +260,150 @@ const CreateRecipe = () => {
               <Paper
                 elevation={0}
                 sx={{
-                  p: 4,
+                  p: 3,
                   borderRadius: 3,
-                  border: "1px dashed #ccc",
-                  textAlign: "center",
+                  border: '1px solid #e8e8e8',
+                  background:
+                    'linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)',
                 }}
               >
-                <Image sx={{ fontSize: 48, color: "#ccc", mb: 2 }} />
-                <Typography variant="body1" sx={{ color: "#999" }}>
-                  Image upload coming soon
+                <Typography
+                  variant="body1"
+                  sx={{ mb: 3, color: '#666', textAlign: 'center' }}
+                >
+                  Take a photo or upload an image of a recipe
                 </Typography>
+
+                {/* Hidden file inputs */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  ref={cameraInputRef}
+                  onChange={handleImageSelect}
+                  style={{ display: 'none' }}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleImageSelect}
+                  style={{ display: 'none' }}
+                />
+
+                {!imagePreview ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 2,
+                      justifyContent: 'center',
+                      flexDirection: { xs: 'column', sm: 'row' },
+                    }}
+                  >
+                    <Button
+                      variant="outlined"
+                      startIcon={<CameraAlt />}
+                      onClick={() => cameraInputRef.current?.click()}
+                      sx={{
+                        display: { xs: 'inline-flex', md: 'none' },
+                        px: 3,
+                        py: 1.5,
+                        borderColor: '#9c3848',
+                        color: '#9c3848',
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        '&:hover': {
+                          borderColor: '#7d2d3a',
+                          backgroundColor: 'rgba(156, 56, 72, 0.04)',
+                        },
+                      }}
+                    >
+                      Take Photo
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<Upload />}
+                      onClick={() => fileInputRef.current?.click()}
+                      sx={{
+                        px: 3,
+                        py: 1.5,
+                        borderColor: '#9c3848',
+                        color: '#9c3848',
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        '&:hover': {
+                          borderColor: '#7d2d3a',
+                          backgroundColor: 'rgba(156, 56, 72, 0.04)',
+                        },
+                      }}
+                    >
+                      Upload Image
+                    </Button>
+                  </Box>
+                ) : (
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Box
+                      component="img"
+                      src={imagePreview}
+                      alt="Recipe preview"
+                      sx={{
+                        maxWidth: '100%',
+                        maxHeight: 300,
+                        borderRadius: 2,
+                        mb: 2,
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: 2,
+                        justifyContent: 'center',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                      }}
+                    >
+                      <Button
+                        variant="outlined"
+                        onClick={clearImage}
+                        sx={{
+                          px: 3,
+                          borderColor: '#999',
+                          color: '#666',
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          fontWeight: 500,
+                          '&:hover': {
+                            borderColor: '#666',
+                            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                          },
+                        }}
+                      >
+                        Choose Different Image
+                      </Button>
+                      <Button
+                        variant="contained"
+                        onClick={generateFromImage}
+                        disabled={loading}
+                        sx={{
+                          px: 4,
+                          background: '#9c3848',
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          '&:hover': {
+                            background: '#7d2d3a',
+                          },
+                          '&:disabled': {
+                            background: '#ccc',
+                          },
+                        }}
+                      >
+                        Extract Recipe
+                      </Button>
+                    </Box>
+                  </Box>
+                )}
               </Paper>
             </TabPanel>
           </Box>
@@ -239,8 +419,8 @@ const CreateRecipe = () => {
           flexDirection="column"
           gap={2}
         >
-          <CircularProgress sx={{ color: "#9c3848" }} />
-          <Typography variant="body1" sx={{ color: "#666" }}>
+          <CircularProgress sx={{ color: '#9c3848' }} />
+          <Typography variant="body1" sx={{ color: '#666' }}>
             Generating your recipe...
           </Typography>
         </Box>

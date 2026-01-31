@@ -1,3 +1,5 @@
+import base64
+
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 
@@ -46,6 +48,49 @@ class GenerateService:
         parsed = completion.choices[0].message.parsed
         if parsed is None:
             raise ValueError("Failed to parse recipe from OpenAI response")
+
+        return RecipeCreate(
+            title=parsed.title,
+            description=parsed.description,
+            ingredients=parsed.ingredients,
+            directions=parsed.directions,
+        )
+
+    async def recipe_from_image(self, image_data: bytes, content_type: str) -> RecipeCreate:
+        """Extract a recipe from an image using OpenAI's vision API."""
+        base64_image = base64.b64encode(image_data).decode("utf-8")
+
+        completion = await self.client.beta.chat.completions.parse(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Extract the recipe from the provided image. "
+                        "The recipe should have a title, a brief description, "
+                        "a list of ingredients required, and a list of directions to follow. "
+                        "If the image doesn't contain a recipe, infer what recipe it might be "
+                        "based on the food shown and generate a plausible recipe for it."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{content_type};base64,{base64_image}"
+                            },
+                        },
+                    ],
+                },
+            ],
+            response_format=GeneratedRecipe,
+        )
+
+        parsed = completion.choices[0].message.parsed
+        if parsed is None:
+            raise ValueError("Failed to parse recipe from image")
 
         return RecipeCreate(
             title=parsed.title,
