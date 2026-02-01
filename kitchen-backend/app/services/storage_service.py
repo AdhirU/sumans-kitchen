@@ -1,10 +1,15 @@
+import io
 import json
 import uuid
 
 from google.cloud import storage
 from google.oauth2 import service_account
+from PIL import Image
 
 from app.config import Settings, get_settings
+
+MAX_IMAGE_WIDTH = 1200
+JPEG_QUALITY = 85
 
 
 class StorageService:
@@ -40,24 +45,50 @@ class StorageService:
         """Check if GCS is properly configured."""
         return self.bucket is not None
 
+    def _compress_image(self, image_data: bytes) -> tuple[bytes, str]:
+        """Compress and resize image, returning (compressed_data, content_type)."""
+        image = Image.open(io.BytesIO(image_data))
+
+        # Convert to RGB if necessary (handles PNG with transparency, etc.)
+        if image.mode in ("RGBA", "LA", "P"):
+            background = Image.new("RGB", image.size, (255, 255, 255))
+            if image.mode == "P":
+                image = image.convert("RGBA")
+            background.paste(image, mask=image.split()[-1] if image.mode == "RGBA" else None)
+            image = background
+        elif image.mode != "RGB":
+            image = image.convert("RGB")
+
+        # Resize if width exceeds maximum
+        if image.width > MAX_IMAGE_WIDTH:
+            ratio = MAX_IMAGE_WIDTH / image.width
+            new_height = int(image.height * ratio)
+            image = image.resize((MAX_IMAGE_WIDTH, new_height), Image.LANCZOS)
+
+        # Compress to JPEG
+        output = io.BytesIO()
+        image.save(output, format="JPEG", quality=JPEG_QUALITY, optimize=True)
+        return output.getvalue(), "image/jpeg"
+
     def upload_image(
         self, image_data: bytes, content_type: str, folder: str = "recipes"
     ) -> str | None:
         """Upload an image to GCS and return the public URL.
 
+        Images are automatically compressed and resized before upload.
         Returns None if GCS is not configured.
         """
         if not self.is_configured():
             return None
 
-        # Generate unique filename
-        extension = content_type.split("/")[-1]
-        if extension == "jpeg":
-            extension = "jpg"
-        filename = f"{folder}/{uuid.uuid4()}.{extension}"
+        # Compress and resize image
+        compressed_data, content_type = self._compress_image(image_data)
+
+        # Generate unique filename (always jpg after compression)
+        filename = f"{folder}/{uuid.uuid4()}.jpg"
 
         blob = self.bucket.blob(filename)
-        blob.upload_from_string(image_data, content_type=content_type)
+        blob.upload_from_string(compressed_data, content_type=content_type)
 
         # Public access is controlled at bucket level (uniform bucket-level access)
         return f"https://storage.googleapis.com/{self.settings.gcs_bucket_name}/{filename}"
