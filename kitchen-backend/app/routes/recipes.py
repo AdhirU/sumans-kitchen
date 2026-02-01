@@ -19,18 +19,24 @@ def get_recipe_service(
 
 @router.get("", response_model=list[RecipeResponse])
 async def get_public_recipes(
+    q: str | None = None,
     service: RecipeService = Depends(get_recipe_service),
 ) -> list[RecipeResponse]:
-    """Get all public recipes."""
+    """Get all public recipes. Optionally filter by search query."""
+    if q:
+        return await service.search_public(q)
     return await service.get_public()
 
 
 @router.get("/mine", response_model=list[RecipeResponse])
 async def get_my_recipes(
+    q: str | None = None,
     user_id: str = Depends(get_current_user),
     service: RecipeService = Depends(get_recipe_service),
 ) -> list[RecipeResponse]:
-    """Get all recipes owned by the current user. Requires authentication."""
+    """Get all recipes owned by the current user. Optionally filter by search query."""
+    if q:
+        return await service.search_by_user(user_id, q)
     return await service.get_by_user(user_id)
 
 

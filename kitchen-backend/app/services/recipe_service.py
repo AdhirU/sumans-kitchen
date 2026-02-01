@@ -18,10 +18,34 @@ class RecipeService:
             recipes.append(recipe_from_mongo(doc))
         return recipes
 
+    async def search_public(self, query: str) -> list[RecipeResponse]:
+        """Search public recipes by text query, sorted by relevance."""
+        recipes = []
+        cursor = self.collection.find(
+            {"$text": {"$search": query}, "is_public": True},
+            {"score": {"$meta": "textScore"}},
+        ).sort([("score", {"$meta": "textScore"})])
+
+        async for doc in cursor:
+            recipes.append(recipe_from_mongo(doc))
+        return recipes
+
     async def get_by_user(self, user_id: str) -> list[RecipeResponse]:
         """Get all recipes owned by a specific user."""
         recipes = []
         async for doc in self.collection.find({"user_id": user_id}):
+            recipes.append(recipe_from_mongo(doc))
+        return recipes
+
+    async def search_by_user(self, user_id: str, query: str) -> list[RecipeResponse]:
+        """Search user's recipes by text query, sorted by relevance."""
+        recipes = []
+        cursor = self.collection.find(
+            {"$text": {"$search": query}, "user_id": user_id},
+            {"score": {"$meta": "textScore"}},
+        ).sort([("score", {"$meta": "textScore"})])
+
+        async for doc in cursor:
             recipes.append(recipe_from_mongo(doc))
         return recipes
 

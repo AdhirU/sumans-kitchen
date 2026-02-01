@@ -7,12 +7,17 @@ const getAuthConfig = () => {
   return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 };
 
-const getPublic = () => {
-  return axios.get<Recipe[]>(baseUrl).then((res) => res.data);
+const getPublic = (query?: string) => {
+  const params = query ? { q: query } : {};
+  return axios.get<Recipe[]>(baseUrl, { params }).then((res) => res.data);
 };
 
-const getMine = async () => {
-  const response = await axios.get<Recipe[]>(`${baseUrl}/mine`, getAuthConfig());
+const getMine = async (query?: string) => {
+  const params = query ? { q: query } : {};
+  const response = await axios.get<Recipe[]>(`${baseUrl}/mine`, {
+    ...getAuthConfig(),
+    params,
+  });
   return response.data;
 };
 

@@ -25,6 +25,13 @@ async def connect_to_mongo():
     await database.client.admin.command("ping")
     logger.info("Connected to MongoDB")
 
+    # Create text index for recipe search (idempotent - skips if exists)
+    await database.db["recipes"].create_index(
+        [("title", "text"), ("description", "text"), ("ingredients", "text")],
+        name="recipe_text_search",
+    )
+    logger.info("Created text search index on recipes")
+
 
 async def close_mongo_connection():
     """Close MongoDB connection."""

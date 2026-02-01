@@ -33,10 +33,10 @@ export const deleteRecipe = (id: string) => {
   };
 };
 
-export const initializePublicRecipes = () => {
+export const initializePublicRecipes = (query?: string) => {
   return async (dispatch: AppDispatch) => {
     try {
-      const recipes = await recipesService.getPublic();
+      const recipes = await recipesService.getPublic(query);
       dispatch(setRecipes(recipes));
     } catch {
       console.log("ERROR!!");
@@ -44,10 +44,10 @@ export const initializePublicRecipes = () => {
   };
 };
 
-export const initializeMyRecipes = () => {
+export const initializeMyRecipes = (query?: string) => {
   return async (dispatch: AppDispatch) => {
     try {
-      const recipes = await recipesService.getMine();
+      const recipes = await recipesService.getMine(query);
       dispatch(setRecipes(recipes));
     } catch {
       console.log("ERROR!!");
