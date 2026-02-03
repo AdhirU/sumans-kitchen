@@ -92,6 +92,7 @@ const SortableIngredient = ({
         sx={{
           cursor: 'grab',
           color: '#999',
+          touchAction: 'none',
           '&:hover': { color: '#666' },
           '&:active': { cursor: 'grabbing' },
         }}
@@ -180,6 +181,7 @@ const SortableDirection = ({
           cursor: 'grab',
           color: '#999',
           mt: 0.25,
+          touchAction: 'none',
           '&:hover': { color: '#666' },
           '&:active': { cursor: 'grabbing' },
         }}
