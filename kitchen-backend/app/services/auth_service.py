@@ -3,11 +3,14 @@ from datetime import datetime, timedelta, timezone
 import httpx
 from bson import ObjectId
 from bson.errors import InvalidId
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from passlib.context import CryptContext
+
+ph = PasswordHasher()
 
 from app.config import Settings, get_settings
 from app.models.user import (
@@ -18,21 +21,22 @@ from app.models.user import (
     user_in_db_from_mongo,
 )
 
-# Password hashing context - bcrypt with auto-upgrade support
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 # HTTP Bearer token extractor for protected routes
 bearer_scheme = HTTPBearer()
 
 
 def hash_password(password: str) -> str:
-    """Hash a plain-text password using bcrypt."""
-    return pwd_context.hash(password)
+    """Hash a plain-text password using Argon2."""
+    return ph.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plain-text password against a bcrypt hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify a plain-text password against an Argon2 hash."""
+    try:
+        ph.verify(hashed_password, plain_password)
+        return True
+    except VerifyMismatchError:
+        return False
 
 
 def create_access_token(user_id: str, settings: Settings) -> str:
