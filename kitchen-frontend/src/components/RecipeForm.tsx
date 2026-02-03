@@ -111,6 +111,7 @@ const SortableIngredient = ({
       />
       <TextField
         fullWidth
+        multiline
         size="small"
         placeholder={`Ingredient ${index + 1}`}
         value={value}
@@ -307,8 +308,12 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setEditedRecipe((prev) => {
-        const oldIndex = prev[field].findIndex((_, i) => `${field}-${i}` === active.id);
-        const newIndex = prev[field].findIndex((_, i) => `${field}-${i}` === over.id);
+        const oldIndex = prev[field].findIndex(
+          (_, i) => `${field}-${i}` === active.id,
+        );
+        const newIndex = prev[field].findIndex(
+          (_, i) => `${field}-${i}` === over.id,
+        );
         return {
           ...prev,
           [field]: arrayMove(prev[field], oldIndex, newIndex),
@@ -514,7 +519,9 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
                 id={`ingredients-${index}`}
                 index={index}
                 value={ingredient}
-                onChange={(value) => handleArrayChange(index, 'ingredients', value)}
+                onChange={(value) =>
+                  handleArrayChange(index, 'ingredients', value)
+                }
                 onRemove={() => handleRemoveItem(index, 'ingredients')}
               />
             ))}
@@ -573,7 +580,9 @@ const RecipeForm = ({ recipe, onSave }: Props) => {
                 id={`directions-${index}`}
                 index={index}
                 value={step}
-                onChange={(value) => handleArrayChange(index, 'directions', value)}
+                onChange={(value) =>
+                  handleArrayChange(index, 'directions', value)
+                }
                 onRemove={() => handleRemoveItem(index, 'directions')}
               />
             ))}
